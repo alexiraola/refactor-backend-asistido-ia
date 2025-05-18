@@ -104,6 +104,50 @@ describe("Orders API", () => {
       expect(response.body.length).toBe(2);
     });
   });
+
+  describe('DELETE /orders/:id', () => {
+    let server: Server;
+
+    beforeAll(async () => {
+      const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
+      const PORT = process.env.PORT || "3001";
+      server = createServer(DB_URL, PORT);
+      await mongoose.connection.dropDatabase();
+    });
+
+    afterEach(async () => {
+      await mongoose.connection.dropDatabase();
+    });
+
+    afterAll(() => {
+      server.close();
+    });
+
+    it('should delete an order', async () => {
+      await createValidOrder(server);
+
+      const response = await request(server).get("/orders");
+
+      expect(response.status).toBe(200);
+      expect(response.body.length).toBe(1);
+
+      const deleteResponse = await request(server).delete("/orders/" + response.body[0]._id);
+      expect(deleteResponse.status).toBe(200);
+      expect(deleteResponse.text).toEqual("Order deleted");
+
+      const afterDeleteResponse = await request(server).get("/orders");
+
+      expect(afterDeleteResponse.status).toBe(200);
+      expect(afterDeleteResponse.body.length).toBe(0);
+    });
+
+    it('returns an error when trying to delete an order that does not exist', async () => {
+      const deleteResponse = await request(server).delete("/orders/123");
+
+      expect(deleteResponse.status).toBe(400);
+      expect(deleteResponse.text).toEqual("Order not found");
+    });
+  });
 });
 
 function createValidOrder(server: Server, discountCode?: string) {
