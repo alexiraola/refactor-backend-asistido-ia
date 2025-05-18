@@ -1,20 +1,25 @@
 import express, { Request, Response, RequestHandler } from 'express';
 import mongoose from 'mongoose';
 import {
-    createOrder,
-    getAllOrders,
-    updateOrder,
-    completeOrder,
-    deleteOrder
+  createOrder,
+  getAllOrders,
+  updateOrder,
+  completeOrder,
+  deleteOrder
 } from './controllers/orderController';
+import dotenv from 'dotenv';
 
-const DB_URL = 'mongodb://localhost:27017/db_orders';
-const PORT = 3002;
+dotenv.config({
+  path: process.env.NODE_ENV === 'test' ? '.test.env' : '.env'
+});
+
+const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
+const PORT = process.env.PORT;
 
 mongoose
-    .connect(DB_URL)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('Error connecting to MongoDB:', err));
+  .connect(DB_URL)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('Error connecting to MongoDB:', err));
 
 export const app = express();
 app.use(express.json());
@@ -25,10 +30,10 @@ app.put('/orders/:id', ((req: Request, res: Response) => updateOrder(req, res)) 
 app.post('/orders/:id/complete', ((req: Request, res: Response) => completeOrder(req, res)) as RequestHandler);
 app.delete('/orders/:id', ((req: Request, res: Response) => deleteOrder(req, res)) as RequestHandler);
 app.get('/', ((req: Request, res: Response) => {
-    console.log("GET /");
-    res.send({ status: 'ok' });
+  console.log("GET /");
+  res.send({ status: 'ok' });
 }) as RequestHandler);
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
