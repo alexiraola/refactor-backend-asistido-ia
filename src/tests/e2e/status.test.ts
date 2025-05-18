@@ -42,33 +42,14 @@ describe("POST /orders", () => {
   });
 
   it('should create an order', async () => {
-    const order = {
-      items: [{
-        productId: '1',
-        quantity: 1,
-        price: 10
-      }],
-      shippingAddress: '123 Main St, Anytown, USA'
-    };
-
-    const response = await request(server).post("/orders").send(order);
+    const response = await createValidOrder(server);
 
     expect(response.status).toBe(200);
     expect(response.text).toEqual("Order created with total: 10");
   });
 
   it('creates an order with discount code', async () => {
-    const order = {
-      items: [{
-        productId: '1',
-        quantity: 1,
-        price: 10
-      }],
-      discountCode: 'DISCOUNT20',
-      shippingAddress: '123 Main St, Anytown, USA'
-    };
-
-    const response = await request(server).post("/orders").send(order);
+    const response = await createValidOrder(server, 'DISCOUNT20');
 
     expect(response.status).toBe(200);
     expect(response.text).toEqual("Order created with total: 8");
@@ -79,7 +60,6 @@ describe("POST /orders", () => {
       items: [],
       shippingAddress: '123 Main St, Anytown, USA'
     };
-
 
     const response = await request(server).post("/orders").send(order);
 
@@ -114,8 +94,8 @@ describe('GET /orders', () => {
   });
 
   it('should get all orders', async () => {
-    await request(server).post("/orders").send(createOrder());
-    await request(server).post("/orders").send(createOrder());
+    await createValidOrder(server);
+    await createValidOrder(server);
 
     const response = await request(server).get("/orders");
 
@@ -124,13 +104,16 @@ describe('GET /orders', () => {
   });
 });
 
-function createOrder() {
-  return {
+function createValidOrder(server: Server, discountCode?: string) {
+  const order = {
     items: [{
       productId: '1',
       quantity: 1,
       price: 10
     }],
-    shippingAddress: '123 Main St, Anytown, USA'
-  }
+    shippingAddress: '123 Main St, Anytown, USA',
+    discountCode
+  };
+
+  return request(server).post("/orders").send(order);
 }
