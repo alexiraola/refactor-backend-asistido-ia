@@ -2,6 +2,7 @@ import request from 'supertest';
 import dotenv from 'dotenv';
 import { createServer } from '../../app';
 import { Server } from 'http';
+import mongoose from 'mongoose';
 
 dotenv.config({
   path: process.env.NODE_ENV === 'test' ? '.test.env' : '.env'
@@ -87,3 +88,49 @@ describe("POST /orders", () => {
   });
 });
 
+describe('GET /orders', () => {
+  let server: Server;
+
+  beforeAll(async () => {
+    const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
+    const PORT = process.env.PORT || "3001";
+    server = createServer(DB_URL, PORT);
+    await mongoose.connection.dropDatabase();
+  });
+
+  afterEach(async () => {
+    await mongoose.connection.dropDatabase();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  it('should get empty array when no orders exist', async () => {
+    const response = await request(server).get("/orders");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
+  });
+
+  it('should get all orders', async () => {
+    await request(server).post("/orders").send(createOrder());
+    await request(server).post("/orders").send(createOrder());
+
+    const response = await request(server).get("/orders");
+
+    expect(response.status).toBe(200);
+    expect(response.body.length).toBe(2);
+  });
+});
+
+function createOrder() {
+  return {
+    items: [{
+      productId: '1',
+      quantity: 1,
+      price: 10
+    }],
+    shippingAddress: '123 Main St, Anytown, USA'
+  }
+}
