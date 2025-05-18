@@ -72,5 +72,18 @@ describe("POST /orders", () => {
     expect(response.status).toBe(200);
     expect(response.text).toEqual("Order created with total: 8");
   });
+
+  it('does not create an order without items', async () => {
+    const order = {
+      items: [],
+      shippingAddress: '123 Main St, Anytown, USA'
+    };
+
+
+    const response = await request(server).post("/orders").send(order);
+
+    expect(response.status).toBe(400);
+    expect(response.text).toEqual("The order must have at least one item");
+  });
 });
 
