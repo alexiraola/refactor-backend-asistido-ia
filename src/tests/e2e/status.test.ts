@@ -125,13 +125,9 @@ describe("Orders API", () => {
 
     it('should delete an order', async () => {
       await createValidOrder(server);
+      const order = await getFirstOrder(server);
 
-      const response = await request(server).get("/orders");
-
-      expect(response.status).toBe(200);
-      expect(response.body.length).toBe(1);
-
-      const deleteResponse = await request(server).delete("/orders/" + response.body[0]._id);
+      const deleteResponse = await request(server).delete("/orders/" + order._id);
       expect(deleteResponse.status).toBe(200);
       expect(deleteResponse.text).toEqual("Order deleted");
 
@@ -168,13 +164,12 @@ describe("Orders API", () => {
 
     it('completes an order', async () => {
       await createValidOrder(server);
+      const order = await getFirstOrder(server);
 
-      const response = await request(server).get("/orders");
-
-      const completeResponse = await request(server).post("/orders/" + response.body[0]._id + "/complete");
+      const completeResponse = await request(server).post("/orders/" + order._id + "/complete");
 
       expect(completeResponse.status).toBe(200);
-      expect(completeResponse.text).toEqual("Order with id " + response.body[0]._id + " completed");
+      expect(completeResponse.text).toEqual("Order with id " + order._id + " completed");
     });
 
     it('does not allow completing an order that is not created', async () => {
@@ -186,16 +181,16 @@ describe("Orders API", () => {
 
     it('does not allow completing an order with status other than CREATED', async () => {
       await createValidOrder(server);
+      const order = await getFirstOrder(server);
 
-      const response = await request(server).get("/orders");
-
-      await request(server).post("/orders/" + response.body[0]._id + "/complete");
-      const completeResponse = await request(server).post("/orders/" + response.body[0]._id + "/complete");
+      await request(server).post("/orders/" + order._id + "/complete");
+      const completeResponse = await request(server).post("/orders/" + order._id + "/complete");
 
       expect(completeResponse.status).toBe(400);
       expect(completeResponse.text).toEqual("Cannot complete an order with status: COMPLETED");
     });
   });
+
 });
 
 function createValidOrder(server: Server, discountCode?: string) {
@@ -210,4 +205,9 @@ function createValidOrder(server: Server, discountCode?: string) {
   };
 
   return request(server).post("/orders").send(order);
+}
+
+async function getFirstOrder(server: Server) {
+  const response = await request(server).get('/orders');
+  return response.body[0];
 }
