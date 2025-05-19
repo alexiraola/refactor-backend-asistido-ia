@@ -191,6 +191,57 @@ describe("Orders API", () => {
     });
   });
 
+  describe('PUT /orders/:id', () => {
+    let server: Server;
+
+    beforeAll(async () => {
+      const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
+      const PORT = process.env.PORT || "3001";
+      server = createServer(DB_URL, PORT);
+      await mongoose.connection.dropDatabase();
+    });
+
+    afterEach(async () => {
+      await mongoose.connection.dropDatabase();
+    });
+
+    afterAll(() => {
+      server.close();
+    });
+
+    it('updates an order', async () => {
+      await createValidOrder(server);
+      const order = await getFirstOrder(server);
+
+      const updateResponse = await request(server).put("/orders/" + order._id).send({
+        status: 'COMPLETED',
+      });
+
+      expect(updateResponse.status).toBe(200);
+      expect(updateResponse.text).toEqual("Order updated. New status: COMPLETED");
+    });
+
+    it('does not allow to update a non-existing order', async () => {
+      const updateResponse = await request(server).put("/orders/123").send({
+        status: 'COMPLETED',
+      });
+
+      expect(updateResponse.status).toBe(400);
+      expect(updateResponse.text).toEqual("Order not found");
+    });
+
+    it('updates an order with shipping address', async () => {
+      await createValidOrder(server);
+      const order = await getFirstOrder(server);
+
+      const updateResponse = await request(server).put("/orders/" + order._id).send({
+        shippingAddress: '123 Main St, Anytown, USA',
+      });
+
+      expect(updateResponse.status).toBe(200);
+      expect(updateResponse.text).toEqual("Order updated. New status: CREATED");
+    });
+  });
 });
 
 function createValidOrder(server: Server, discountCode?: string) {

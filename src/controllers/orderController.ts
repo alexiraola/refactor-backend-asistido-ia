@@ -45,7 +45,7 @@ export const updateOrder = async (req: Request, res: Response) => {
 
   const order = await OrderModel.findById(id);
   if (!order) {
-    return res.send('Order not found');
+    return res.status(400).send('Order not found');
   }
 
   if (shippingAddress) {
