@@ -148,6 +148,54 @@ describe("Orders API", () => {
       expect(deleteResponse.text).toEqual("Order not found");
     });
   });
+  describe('POST /orders/:id/complete', () => {
+    let server: Server;
+
+    beforeAll(async () => {
+      const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
+      const PORT = process.env.PORT || "3001";
+      server = createServer(DB_URL, PORT);
+      await mongoose.connection.dropDatabase();
+    });
+
+    afterEach(async () => {
+      await mongoose.connection.dropDatabase();
+    });
+
+    afterAll(() => {
+      server.close();
+    });
+
+    it('completes an order', async () => {
+      await createValidOrder(server);
+
+      const response = await request(server).get("/orders");
+
+      const completeResponse = await request(server).post("/orders/" + response.body[0]._id + "/complete");
+
+      expect(completeResponse.status).toBe(200);
+      expect(completeResponse.text).toEqual("Order with id " + response.body[0]._id + " completed");
+    });
+
+    it('does not allow completing an order that is not created', async () => {
+      const response = await request(server).post("/orders/123/complete");
+
+      expect(response.status).toBe(400);
+      expect(response.text).toEqual("Order not found to complete");
+    });
+
+    it('does not allow completing an order with status other than CREATED', async () => {
+      await createValidOrder(server);
+
+      const response = await request(server).get("/orders");
+
+      await request(server).post("/orders/" + response.body[0]._id + "/complete");
+      const completeResponse = await request(server).post("/orders/" + response.body[0]._id + "/complete");
+
+      expect(completeResponse.status).toBe(400);
+      expect(completeResponse.text).toEqual("Cannot complete an order with status: COMPLETED");
+    });
+  });
 });
 
 function createValidOrder(server: Server, discountCode?: string) {
