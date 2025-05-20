@@ -1,4 +1,5 @@
 import { Discount } from "../valueObjects/discount";
+import { Id } from "../valueObjects/id";
 import { OrderItem } from "../valueObjects/orderItem";
 
 export enum OrderStatus {
@@ -8,6 +9,7 @@ export enum OrderStatus {
 
 export class Order {
   private constructor(
+    private readonly id: Id,
     private readonly items: OrderItem[],
     private discount: Discount,
     private shippingAddress: string,
@@ -18,7 +20,7 @@ export class Order {
     if (items.length === 0) {
       throw new Error("Order must have at least one item");
     }
-    return new Order(items, discount, shippingAddress, OrderStatus.Created);
+    return new Order(Id.create(), items, discount, shippingAddress, OrderStatus.Created);
   }
 
   total() {
@@ -35,6 +37,7 @@ export class Order {
 
   toDto() {
     return {
+      id: this.id.toString(),
       items: this.items.map(item => item.toDto()),
       discountCode: this.discount.toDto(),
       shippingAddress: this.shippingAddress,
