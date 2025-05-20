@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import request from 'supertest';
 import dotenv from 'dotenv';
 import { createServer } from '../../app';
