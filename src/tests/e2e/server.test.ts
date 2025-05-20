@@ -241,6 +241,18 @@ describe("Orders API", () => {
       expect(updateResponse.status).toBe(200);
       expect(updateResponse.text).toEqual("Order updated. New status: CREATED");
     });
+
+    it('updates and order with discount code', async () => {
+      await createValidOrder(server);
+      const order = await getFirstOrder(server);
+
+      const updateResponse = await request(server).put("/orders/" + order._id).send({
+        discountCode: 'DISCOUNT20',
+      });
+
+      expect(updateResponse.status).toBe(200);
+      expect(updateResponse.text).toEqual("Order updated. New status: CREATED");
+    });
   });
 });
 
