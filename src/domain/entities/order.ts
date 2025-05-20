@@ -18,7 +18,7 @@ export class Order {
 
   static create(items: OrderItem[], discount: Discount, shippingAddress: string) {
     if (items.length === 0) {
-      throw new Error("Order must have at least one item");
+      throw new Error("The order must have at least one item");
     }
     return new Order(Id.create(), items, discount, shippingAddress, OrderStatus.Created);
   }

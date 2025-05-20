@@ -2,34 +2,26 @@ import { Request, Response } from 'express';
 import { OrderModel } from '../models/orderModel';
 import { Discount } from '../domain/valueObjects/discount';
 import { OrderItem } from '../domain/valueObjects/orderItem';
+import { Order } from '../domain/entities/order';
 
 // Create a new order
 export const createOrder = async (req: Request, res: Response) => {
   console.log("POST /orders");
   const { items, discountCode, shippingAddress } = req.body;
 
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).send('The order must have at least one item');
+  try {
+    const order = Order.create(
+      items.map((item: any) => OrderItem.create(item.productId, item.quantity || 0, item.price || 0)),
+      Discount.fromCode(discountCode),
+      shippingAddress
+    );
+    const newOrder = new OrderModel(order.toDto());
+
+    await newOrder.save();
+    res.send(`Order created with total: ${order.total()}`);
+  } catch (error) {
+    return res.status(400).send(error.message);
   }
-
-  let total = 0;
-  for (const item of items) {
-    const orderItem = OrderItem.create(item.productId, item.quantity || 0, item.price || 0);
-    total += orderItem.total();
-  }
-
-  const discount = Discount.fromCode(discountCode);
-  total = discount.apply(total);
-
-  const newOrder = new OrderModel({
-    items,
-    discountCode,
-    shippingAddress,
-    total,
-  });
-
-  await newOrder.save();
-  res.send(`Order created with total: ${total}`);
 };
 
 // Get all orders
