@@ -11,4 +11,8 @@ export class Discount {
   apply(price: number) {
     return price * this.value;
   }
+
+  toDto() {
+    return this.code;
+  }
 }

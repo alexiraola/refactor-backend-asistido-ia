@@ -18,4 +18,12 @@ export class OrderItem {
   total() {
     return this.quantity * this.price;
   }
+
+  toDto() {
+    return {
+      productId: this.productId,
+      quantity: this.quantity,
+      price: this.price,
+    };
+  }
 }
