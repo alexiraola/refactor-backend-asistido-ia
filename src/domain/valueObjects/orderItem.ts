@@ -1,0 +1,21 @@
+export class OrderItem {
+  private constructor(
+    private readonly productId: string,
+    private readonly quantity: number,
+    private readonly price: number,
+  ) { }
+
+  static create(productId: string, quantity: number, price: number) {
+    if (quantity < 1) {
+      throw new Error("Quantity must be greater than 0");
+    }
+    if (price < 0) {
+      throw new Error("Price must be greater than 0");
+    }
+    return new OrderItem(productId, quantity, price);
+  }
+
+  total() {
+    return this.quantity * this.price;
+  }
+}

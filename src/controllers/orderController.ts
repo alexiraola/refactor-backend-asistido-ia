@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { OrderModel } from '../models/orderModel';
 import { Discount } from '../domain/valueObjects/discount';
+import { OrderItem } from '../domain/valueObjects/orderItem';
 
 // Create a new order
 export const createOrder = async (req: Request, res: Response) => {
@@ -13,7 +14,8 @@ export const createOrder = async (req: Request, res: Response) => {
 
   let total = 0;
   for (const item of items) {
-    total += (item.price || 0) * (item.quantity || 0);
+    const orderItem = OrderItem.create(item.productId, item.quantity || 0, item.price || 0);
+    total += orderItem.total();
   }
 
   const discount = Discount.fromCode(discountCode);
@@ -62,13 +64,8 @@ export const updateOrder = async (req: Request, res: Response) => {
   if (discountCode) {
     order.discountCode = discountCode;
     if (discountCode === 'DISCOUNT20') {
-      let newTotal = 0;
-      for (const item of order.items) {
-        newTotal += (item.price || 0) * (item.quantity || 0);
-      }
       const discount = Discount.fromCode(discountCode);
-      newTotal = discount.apply(newTotal);
-      order.total = newTotal;
+      order.total = discount.apply(order.total || 0);
     } else {
       console.log('Invalid or not implemented discount code');
     }
