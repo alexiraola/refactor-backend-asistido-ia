@@ -16,11 +16,11 @@ export class Order {
     private status: OrderStatus,
   ) { }
 
-  static create(items: OrderItem[], discount: Discount, shippingAddress: string) {
+  static create(id: Id, items: OrderItem[], discount: Discount, shippingAddress: string, status = OrderStatus.Created) {
     if (items.length === 0) {
       throw new Error("The order must have at least one item");
     }
-    return new Order(Id.create(), items, discount, shippingAddress, OrderStatus.Created);
+    return new Order(id, items, discount, shippingAddress, status);
   }
 
   total() {
@@ -37,7 +37,7 @@ export class Order {
 
   toDto() {
     return {
-      id: this.id.toString(),
+      _id: this.id.toString(),
       items: this.items.map(item => item.toDto()),
       discountCode: this.discount.toDto(),
       shippingAddress: this.shippingAddress,
