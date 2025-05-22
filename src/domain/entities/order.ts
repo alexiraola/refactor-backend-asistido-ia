@@ -23,6 +23,18 @@ export class Order {
     return new Order(id, items, discount, shippingAddress, status);
   }
 
+  update(discountCode?: string, shippingAddress?: string, status?: OrderStatus) {
+    if (discountCode) {
+      this.discount = Discount.fromCode(discountCode);
+    }
+    if (shippingAddress) {
+      this.shippingAddress = shippingAddress;
+    }
+    if (status === OrderStatus.Completed) {
+      this.complete();
+    }
+  }
+
   total() {
     const total = this.items.reduce((total, item) => total + item.total(), 0);
     return this.discount.apply(total);

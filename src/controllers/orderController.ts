@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { OrderModel } from '../models/orderModel';
 import { Discount } from '../domain/valueObjects/discount';
 import { OrderItem } from '../domain/valueObjects/orderItem';
 import { Order } from '../domain/entities/order';
@@ -15,7 +14,7 @@ export const createOrder = async (req: Request, res: Response) => {
 
   try {
     const order = Order.create(
-      Id.create(),
+      repository.newId(),
       items.map((item: any) => OrderItem.create(item.productId, item.quantity || 0, item.price || 0)),
       Discount.fromCode(discountCode),
       shippingAddress
@@ -46,35 +45,10 @@ export const updateOrder = async (req: Request, res: Response) => {
     return res.status(400).send('Order not found');
   }
 
-  const order = await OrderModel.findById(id)!;
+  order2.update(discountCode, shippingAddress, status);
 
-  if (!order) {
-    return res.status(400).send('Order not found');
-  }
-
-  if (shippingAddress) {
-    order.shippingAddress = shippingAddress;
-  }
-
-  if (status) {
-    if (status === 'COMPLETED' && order.items.length === 0) {
-      return res.send('Cannot complete an order without items');
-    }
-    order.status = status;
-  }
-
-  if (discountCode) {
-    order.discountCode = discountCode;
-    if (discountCode === 'DISCOUNT20') {
-      const discount = Discount.fromCode(discountCode);
-      order.total = discount.apply(order.total || 0);
-    } else {
-      console.log('Invalid or not implemented discount code');
-    }
-  }
-
-  await order.save();
-  res.send(`Order updated. New status: ${order.status}`);
+  await repository.update(order2);
+  res.send(`Order updated. New status: ${order2.toDto().status}`);
 };
 
 // Complete order
