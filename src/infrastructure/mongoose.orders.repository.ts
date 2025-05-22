@@ -3,7 +3,7 @@ import { OrdersRepository } from "../domain/repositories/orders.repository";
 import { Discount } from "../domain/valueObjects/discount";
 import { Id } from "../domain/valueObjects/id";
 import { OrderItem } from "../domain/valueObjects/orderItem";
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IOrder extends Document {
   _id: string;
@@ -40,6 +40,14 @@ function isValidStatus(status: string): status is OrderStatus {
 }
 
 export class MongooseOrdersRepository implements OrdersRepository {
+  private constructor() {
+  }
+
+  static create(dbUrl: string): OrdersRepository {
+    mongoose.connect(dbUrl);
+    return new MongooseOrdersRepository();
+  }
+
   newId(): Id {
     return Id.create(new mongoose.Types.ObjectId().toString());
   }

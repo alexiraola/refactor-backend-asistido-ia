@@ -1,5 +1,4 @@
 import express, { Request, Response, RequestHandler } from 'express';
-import mongoose from 'mongoose';
 import {
   createOrder,
   getAllOrders,
@@ -12,11 +11,6 @@ import { Factory } from './infrastructure/factory';
 const logger = Factory.logger();
 
 export function createServer(DB_URL: string, PORT: string) {
-  mongoose
-    .connect(DB_URL)
-    .then(() => logger.log('Connected to MongoDB'))
-    .catch((err) => logger.error('Error connecting to MongoDB:', err));
-
   const app = express();
   app.use(express.json());
 

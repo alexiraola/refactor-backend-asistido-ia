@@ -11,6 +11,6 @@ export class Factory {
   }
 
   static orderRepository(): OrdersRepository {
-    return new MongooseOrdersRepository();
+    return MongooseOrdersRepository.create(process.env.MONGODB_URL || "mongodb://root:example@localhost:27017/db_orders?authSource=admin");
   }
 }
