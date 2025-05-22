@@ -7,12 +7,15 @@ import {
   completeOrder,
   deleteOrder
 } from './controllers/orderController';
+import { Factory } from './infrastructure/factory';
+
+const logger = Factory.logger();
 
 export function createServer(DB_URL: string, PORT: string) {
   mongoose
     .connect(DB_URL)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('Error connecting to MongoDB:', err));
+    .then(() => logger.log('Connected to MongoDB'))
+    .catch((err) => logger.error('Error connecting to MongoDB:', err));
 
   const app = express();
   app.use(express.json());
@@ -23,11 +26,11 @@ export function createServer(DB_URL: string, PORT: string) {
   app.post('/orders/:id/complete', ((req: Request, res: Response) => completeOrder(req, res)) as RequestHandler);
   app.delete('/orders/:id', ((req: Request, res: Response) => deleteOrder(req, res)) as RequestHandler);
   app.get('/', ((req: Request, res: Response) => {
-    console.log("GET /");
+    logger.log("GET /");
     res.send({ status: 'ok' });
   }) as RequestHandler);
 
   return app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    logger.log(`Server running on port ${PORT}`);
   });
 }

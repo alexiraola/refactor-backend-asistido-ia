@@ -2,14 +2,15 @@ import { Request, Response } from 'express';
 import { Discount } from '../domain/valueObjects/discount';
 import { OrderItem } from '../domain/valueObjects/orderItem';
 import { Order } from '../domain/entities/order';
-import { MongooseOrdersRepository } from '../infrastructure/mongoose.orders.repository';
 import { Id } from '../domain/valueObjects/id';
+import { Factory } from '../infrastructure/factory';
 
-const repository = new MongooseOrdersRepository();
+const repository = Factory.orderRepository();
+const logger = Factory.logger();
 
 // Create a new order
 export const createOrder = async (req: Request, res: Response) => {
-  console.log("POST /orders");
+  logger.log("POST /orders");
   const { items, discountCode, shippingAddress } = req.body;
 
   try {
@@ -29,14 +30,14 @@ export const createOrder = async (req: Request, res: Response) => {
 
 // Get all orders
 export const getAllOrders = async (_req: Request, res: Response) => {
-  console.log("GET /orders");
+  logger.log("GET /orders");
   const orders = await repository.findAll();
   res.json(orders.map(order => order.toDto()));
 };
 
 // Update order
 export const updateOrder = async (req: Request, res: Response) => {
-  console.log("PUT /orders/:id");
+  logger.log("PUT /orders/:id");
   const { id } = req.params;
   const { status, shippingAddress, discountCode } = req.body;
 
@@ -53,7 +54,7 @@ export const updateOrder = async (req: Request, res: Response) => {
 
 // Complete order
 export const completeOrder = async (req: Request, res: Response) => {
-  console.log("POST /orders/:id/complete");
+  logger.log("POST /orders/:id/complete");
   const { id } = req.params;
 
   const order = await repository.findById(Id.create(id));
@@ -65,7 +66,7 @@ export const completeOrder = async (req: Request, res: Response) => {
     order.complete();
     await repository.update(order);
   } catch (error: any) {
-    console.error(error);
+    logger.error(error);
     return res.status(400).send(error.message);
   }
 
@@ -74,7 +75,7 @@ export const completeOrder = async (req: Request, res: Response) => {
 
 // Delete order
 export const deleteOrder = async (req: Request, res: Response) => {
-  console.log("DELETE /orders/:id");
+  logger.log("DELETE /orders/:id");
   const order = await repository.findById(Id.create(req.params.id));
   if (order === null) {
     res.status(400).send('Order not found');
