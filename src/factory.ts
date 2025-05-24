@@ -1,6 +1,6 @@
-import { OrdersRepository } from "../domain/repositories/orders.repository";
-import { ConsoleLogger, Logger, NoopLogger } from "./logger";
-import { MongooseOrdersRepository } from "./mongoose.orders.repository";
+import { OrdersRepository } from "./domain/repositories/orders.repository";
+import { ConsoleLogger, Logger, NoopLogger } from "./infrastructure/logger";
+import { MongooseOrdersRepository } from "./infrastructure/mongoose.orders.repository";
 
 export class Factory {
   static logger(): Logger {

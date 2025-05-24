@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import request from 'supertest';
 import dotenv from 'dotenv';
-import { createServer } from '../../app';
+import { createServer } from '../../infrastructure/server';
 import { Server } from 'http';
 import mongoose from 'mongoose';
 
@@ -13,10 +13,10 @@ describe("Orders API", () => {
   describe('Status endpoint', () => {
     let server: Server;
 
-    beforeAll(() => {
+    beforeAll(async () => {
       const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
       const PORT = process.env.PORT || "3001";
-      server = createServer(DB_URL, PORT);
+      server = await createServer(DB_URL, PORT);
     });
 
     afterAll(() => {
@@ -33,10 +33,10 @@ describe("Orders API", () => {
   describe("POST /orders", () => {
     let server: Server;
 
-    beforeAll(() => {
+    beforeAll(async () => {
       const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
       const PORT = process.env.PORT || "3001";
-      server = createServer(DB_URL, PORT);
+      server = await createServer(DB_URL, PORT);
     });
 
     afterAll(() => {
@@ -76,7 +76,7 @@ describe("Orders API", () => {
     beforeAll(async () => {
       const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
       const PORT = process.env.PORT || "3001";
-      server = createServer(DB_URL, PORT);
+      server = await createServer(DB_URL, PORT);
       await mongoose.connection.dropDatabase();
     });
 
@@ -112,7 +112,7 @@ describe("Orders API", () => {
     beforeAll(async () => {
       const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
       const PORT = process.env.PORT || "3001";
-      server = createServer(DB_URL, PORT);
+      server = await createServer(DB_URL, PORT);
       await mongoose.connection.dropDatabase();
     });
 
@@ -151,7 +151,7 @@ describe("Orders API", () => {
     beforeAll(async () => {
       const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
       const PORT = process.env.PORT || "3001";
-      server = createServer(DB_URL, PORT);
+      server = await createServer(DB_URL, PORT);
       await mongoose.connection.dropDatabase();
     });
 
@@ -198,7 +198,7 @@ describe("Orders API", () => {
     beforeAll(async () => {
       const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
       const PORT = process.env.PORT || "3001";
-      server = createServer(DB_URL, PORT);
+      server = await createServer(DB_URL, PORT);
       await mongoose.connection.dropDatabase();
     });
 

@@ -3,7 +3,7 @@ import { Discount } from '../domain/valueObjects/discount';
 import { OrderItem } from '../domain/valueObjects/orderItem';
 import { Order } from '../domain/entities/order';
 import { Id } from '../domain/valueObjects/id';
-import { Factory } from '../infrastructure/factory';
+import { Factory } from '../factory';
 
 const repository = Factory.orderRepository();
 const logger = Factory.logger();

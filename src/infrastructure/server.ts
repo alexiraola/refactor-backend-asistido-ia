@@ -5,12 +5,12 @@ import {
   updateOrder,
   completeOrder,
   deleteOrder
-} from './controllers/orderController';
-import { Factory } from './infrastructure/factory';
+} from '../controllers/orderController';
+import { Factory } from '../factory';
 
 const logger = Factory.logger();
 
-export function createServer(DB_URL: string, PORT: string) {
+export async function createServer(DB_URL: string, PORT: string) {
   const app = express();
   app.use(express.json());
 
