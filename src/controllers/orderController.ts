@@ -20,7 +20,7 @@ export const createOrder = async (req: Request, res: Response) => {
       Discount.fromCode(discountCode),
       shippingAddress
     );
-    await repository.create(order);
+    await repository.save(order);
 
     res.send(`Order created with total: ${order.total()}`);
   } catch (error: any) {
@@ -48,7 +48,7 @@ export const updateOrder = async (req: Request, res: Response) => {
 
   order2.update(discountCode, shippingAddress, status);
 
-  await repository.update(order2);
+  await repository.save(order2);
   res.send(`Order updated. New status: ${order2.toDto().status}`);
 };
 
@@ -64,7 +64,7 @@ export const completeOrder = async (req: Request, res: Response) => {
 
   try {
     order.complete();
-    await repository.update(order);
+    await repository.save(order);
   } catch (error: any) {
     logger.error(error);
     return res.status(400).send(error.message);

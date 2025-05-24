@@ -52,14 +52,9 @@ export class MongooseOrdersRepository implements OrdersRepository {
     return Id.create(new mongoose.Types.ObjectId().toString());
   }
 
-  async create(order: Order): Promise<void> {
-    const orderModel = new OrderModel(order.toDto());
-    await orderModel.save();
-  }
-
-  async update(order: Order): Promise<void> {
+  async save(order: Order): Promise<void> {
     const { _id, ...data } = order.toDto();
-    await OrderModel.findByIdAndUpdate(_id, data, { new: true });
+    await OrderModel.findByIdAndUpdate(_id, data, { upsert: true });
   }
 
   async findAll(): Promise<Order[]> {

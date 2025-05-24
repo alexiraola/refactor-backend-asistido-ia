@@ -20,19 +20,49 @@ describe("The order Mongo repository", () => {
   });
 
   it("save a given new valid order", async () => {
-    // Arrange
-    const items = [
-      OrderItem.create("1", 2, 3),
-    ];
+    const order = createValidOrder("DISCOUNT20");
 
-    const order = Order.create(Id.create("1"), items, Discount.fromCode("DISCOUNT20"), "Shipping address");
+    await orderRepository.save(order);
 
-    // Act
-    await orderRepository.create(order);
-
-    // Assert
     const savedOrder = await orderRepository.findById(Id.create("1"));
-
     expect(savedOrder).toEqual(order);
   });
+
+  it("save a given new order with an empty discount", async () => {
+    const order = createValidOrder("INVALID");
+
+    await orderRepository.save(order);
+
+    const savedOrder = await orderRepository.findById(Id.create("1"));
+    expect(savedOrder).toEqual(order);
+  });
+
+  it("updates a given order", async () => {
+    const order = createValidOrder("DISCOUNT20");
+    await orderRepository.save(order);
+
+    order.update("DISCOUNT30", "Shipping address 2");
+    await orderRepository.save(order);
+
+    const savedOrder = await orderRepository.findById(Id.create("1"));
+    expect(savedOrder).toEqual(order);
+  });
+
+  it("deletes a given order", async () => {
+    const order = createValidOrder("DISCOUNT20");
+    await orderRepository.save(order);
+
+    await orderRepository.delete(order);
+
+    const savedOrder = await orderRepository.findById(Id.create("1"));
+    expect(savedOrder).toBeNull();
+  });
 });
+
+function createValidOrder(discountCode: string): Order {
+  const items = [
+    OrderItem.create("1", 2, 3),
+  ];
+
+  return Order.create(Id.create("1"), items, Discount.fromCode(discountCode), "Shipping address");
+}
