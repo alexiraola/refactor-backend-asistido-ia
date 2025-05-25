@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { OrdersService } from '../application/orders.service';
-import { DomainError } from '../domain/error';
-import { Logger } from '../infrastructure/logger';
+import { OrdersService } from '../../application/orders.service';
+import { DomainError } from '../../domain/error';
+import { Logger } from '../logger';
 
 export class OrdersController {
   constructor(private readonly useCase: OrdersService, private readonly logger: Logger) { }

@@ -1,17 +1,16 @@
 import express, { Request, Response } from 'express';
 import {
   OrdersController
-} from '../controllers/orderController';
+} from './controllers/orders.controller';
 import { Factory } from '../factory';
 import { connectToMongo } from './mongoose/connect';
 
-const logger = Factory.logger();
 
 export async function createServer(DB_URL: string, PORT: string) {
-  await connectToMongo(DB_URL, logger);
+  const logger = Factory.logger();
+  const controller = new OrdersController((Factory.createOrderService()), logger);
 
-  const useCase = Factory.createOrderService();
-  const controller = new OrdersController(useCase, logger);
+  await connectToMongo(DB_URL, logger);
 
   const app = express();
   app.use(express.json());
