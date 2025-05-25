@@ -2,8 +2,27 @@ import { Request, Response } from 'express';
 import { Factory } from '../factory';
 import { OrdersService } from '../application/orders.service';
 import { DomainError } from '../domain/error';
+import { Logger } from '../infrastructure/logger';
 
 const logger = Factory.logger();
+
+export class OrdersController {
+  constructor(private readonly useCase: OrdersService, private readonly logger: Logger) { }
+
+  createOrder = async (req: Request, res: Response) => {
+    this.logger.log("POST /orders");
+    const { items, discountCode, shippingAddress } = req.body;
+
+    try {
+      res.send((await this.useCase.createOrder({ items, discountCode, shippingAddress })));
+    } catch (error: any) {
+      if (error instanceof DomainError) {
+        return res.status(400).send(error.message);
+      }
+      return res.status(500).send("Unexpected error");
+    }
+  };
+}
 
 // Create a new order
 export const createOrder = async (useCase: OrdersService, req: Request, res: Response) => {
