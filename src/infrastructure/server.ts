@@ -20,9 +20,9 @@ export async function createServer(DB_URL: string, PORT: string) {
   app.use(express.json());
   app.post('/orders', ((req: Request, res: Response) => createOrder(useCase, req, res)) as RequestHandler);
   app.get('/orders', ((req: Request, res: Response) => getAllOrders(useCase, req, res)) as RequestHandler);
-  app.put('/orders/:id', ((req: Request, res: Response) => updateOrder(req, res)) as RequestHandler);
-  app.post('/orders/:id/complete', ((req: Request, res: Response) => completeOrder(req, res)) as RequestHandler);
-  app.delete('/orders/:id', ((req: Request, res: Response) => deleteOrder(req, res)) as RequestHandler);
+  app.put('/orders/:id', ((req: Request, res: Response) => updateOrder(useCase, req, res)) as RequestHandler);
+  app.post('/orders/:id/complete', ((req: Request, res: Response) => completeOrder(useCase, req, res)) as RequestHandler);
+  app.delete('/orders/:id', ((req: Request, res: Response) => deleteOrder(useCase, req, res)) as RequestHandler);
   app.get('/', ((_req: Request, res: Response) => {
     logger.log("GET /");
     res.send({ status: 'ok' });

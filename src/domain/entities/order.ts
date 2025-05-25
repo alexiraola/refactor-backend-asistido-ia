@@ -1,3 +1,4 @@
+import { DomainError } from "../error";
 import { Discount } from "../valueObjects/discount";
 import { Id } from "../valueObjects/id";
 import { OrderItem } from "../valueObjects/orderItem";
@@ -18,7 +19,7 @@ export class Order {
 
   static create(id: Id, items: OrderItem[], discount: Discount, shippingAddress: string, status = OrderStatus.Created) {
     if (items.length === 0) {
-      throw new Error("The order must have at least one item");
+      throw new DomainError("The order must have at least one item");
     }
     return new Order(id, items, discount, shippingAddress, status);
   }
@@ -42,7 +43,7 @@ export class Order {
 
   complete() {
     if (this.status !== OrderStatus.Created) {
-      throw new Error(`Cannot complete an order with status: ${this.status}`);
+      throw new DomainError(`Cannot complete an order with status: ${this.status}`);
     }
     this.status = OrderStatus.Completed;
   }
