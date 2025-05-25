@@ -1,38 +1,29 @@
 import { Request, Response } from 'express';
-import { Discount } from '../domain/valueObjects/discount';
-import { OrderItem } from '../domain/valueObjects/orderItem';
-import { Order } from '../domain/entities/order';
 import { Id } from '../domain/valueObjects/id';
 import { Factory } from '../factory';
+import { OrdersService } from '../application/orders.service';
 
-const repository = Factory.orderRepository();
+const repository = Factory.getOrderRepository();
 const logger = Factory.logger();
 
 // Create a new order
-export const createOrder = async (req: Request, res: Response) => {
+export const createOrder = async (useCase: OrdersService, req: Request, res: Response) => {
   logger.log("POST /orders");
   const { items, discountCode, shippingAddress } = req.body;
 
   try {
-    const order = Order.create(
-      repository.newId(),
-      items.map((item: any) => OrderItem.create(item.productId, item.quantity || 0, item.price || 0)),
-      Discount.fromCode(discountCode),
-      shippingAddress
-    );
-    await repository.save(order);
-
-    res.send(`Order created with total: ${order.total()}`);
+    const result = await useCase.createOrder({ items, discountCode, shippingAddress });
+    res.send(result);
   } catch (error: any) {
     return res.status(400).send(error.message);
   }
 };
 
 // Get all orders
-export const getAllOrders = async (_req: Request, res: Response) => {
+export const getAllOrders = async (useCase: OrdersService, _req: Request, res: Response) => {
   logger.log("GET /orders");
-  const orders = await repository.findAll();
-  res.json(orders.map(order => order.toDto()));
+  const orders = await useCase.getAllOrders();
+  res.json(orders);
 };
 
 // Update order

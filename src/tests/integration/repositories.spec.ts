@@ -11,7 +11,8 @@ describe("The order Mongo repository", () => {
 
   beforeAll(async () => {
     const dbUrl = "mongodb://root:example@localhost:27017/db_orders_mongo_repository?authSource=admin";
-    orderRepository = MongooseOrdersRepository.create(dbUrl);
+    await mongoose.connect(dbUrl);
+    orderRepository = new MongooseOrdersRepository();
     await mongoose.connection.dropDatabase();
   });
 
