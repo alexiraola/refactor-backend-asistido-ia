@@ -1,5 +1,6 @@
 import { Order, OrderStatus } from "../domain/entities/order";
 import { DomainError } from "../domain/error";
+import { Notifier } from "../domain/notifier";
 import { OrdersRepository } from "../domain/repositories/orders.repository";
 import { Discount } from "../domain/valueObjects/discount";
 import { Id } from "../domain/valueObjects/id";
@@ -19,7 +20,7 @@ export type UpdateOrderRequest = {
 };
 
 export class OrdersService {
-  constructor(private readonly repository: OrdersRepository) { }
+  constructor(private readonly repository: OrdersRepository, private readonly notifier: Notifier) { }
 
   async createOrder(request: CreateOrderRequest) {
     const order = Order.create(
@@ -29,6 +30,7 @@ export class OrdersService {
       request.shippingAddress
     );
     await this.repository.save(order);
+    await this.notifier.notify(`New order created: ${order.toDto()._id}. Total: ${order.total()}`);
     return `Order created with total: ${order.total()}`;
   }
 
@@ -46,6 +48,8 @@ export class OrdersService {
     order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus);
     await this.repository.save(order);
 
+    await this.notifier.notify(`Order updated. New status: ${order.toDto().status}`);
+
     return `Order updated. New status: ${order.toDto().status}`;
   }
 
@@ -58,6 +62,8 @@ export class OrdersService {
     order.complete();
     await this.repository.save(order);
 
+    await this.notifier.notify(`Order completed: ${order.toDto()._id}`);
+
     return `Order with id ${id} completed`;
   }
 
@@ -67,6 +73,9 @@ export class OrdersService {
       throw new DomainError('Order not found');
     }
     await this.repository.delete(order);
+
+    await this.notifier.notify(`Order deleted: ${order.toDto()._id}`);
+
     return 'Order deleted';
   }
 }

@@ -5,6 +5,7 @@ import { Order } from "../../../domain/entities/order";
 import { Discount } from "../../../domain/valueObjects/discount";
 import { Id } from "../../../domain/valueObjects/id";
 import { OrderItem } from "../../../domain/valueObjects/orderItem";
+import { FakeNotifier } from "../../../domain/notifier";
 
 describe("OrdersService", () => {
   let repository: InMemoryOrdersRepository;
@@ -12,7 +13,7 @@ describe("OrdersService", () => {
 
   beforeEach(() => {
     repository = new InMemoryOrdersRepository();
-    service = new OrdersService(repository);
+    service = new OrdersService(repository, new FakeNotifier());
   });
 
   it("should create an order from a request", async () => {
@@ -29,7 +30,7 @@ describe("OrdersService", () => {
     });
 
     expect(result).toBe("Order created with total: 10");
-    expect(repository.findAll()).resolves.toHaveLength(1);
+    await expect(repository.findAll()).resolves.toHaveLength(1);
   });
 
   it("should create an order from a request with discount", async () => {
@@ -46,7 +47,7 @@ describe("OrdersService", () => {
     });
 
     expect(result).toBe("Order created with total: 8");
-    expect(repository.findAll()).resolves.toHaveLength(1);
+    await expect(repository.findAll()).resolves.toHaveLength(1);
   });
 
   it("should update an order from a request", async () => {
@@ -61,7 +62,7 @@ describe("OrdersService", () => {
     });
 
     expect(result).toBe("Order updated. New status: CREATED");
-    expect(repository.findAll()).resolves.toHaveLength(1);
+    await expect(repository.findAll()).resolves.toHaveLength(1);
   });
 
   it("should get all orders", async () => {
@@ -78,7 +79,7 @@ describe("OrdersService", () => {
 
     const result = await service.completeOrder(order.getId().toString());
     expect(result).toBe("Order with id 0 completed");
-    expect(repository.findAll()).resolves.toHaveLength(1);
+    await expect(repository.findAll()).resolves.toHaveLength(1);
   });
 
   it("should delete an order", async () => {
@@ -87,7 +88,7 @@ describe("OrdersService", () => {
 
     const result = await service.deleteOrder(order.getId().toString());
     expect(result).toBe("Order deleted");
-    expect(repository.findAll()).resolves.toHaveLength(0);
+    await expect(repository.findAll()).resolves.toHaveLength(0);
   });
 });
 
