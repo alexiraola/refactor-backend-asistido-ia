@@ -36,6 +36,10 @@ export class Order {
     }
   }
 
+  getId() {
+    return this.id;
+  }
+
   total() {
     const total = this.items.reduce((total, item) => total + item.total(), 0);
     return this.discount.apply(total);
@@ -57,5 +61,9 @@ export class Order {
       total: this.total(),
       status: this.status,
     };
+  }
+
+  equals(other: Order) {
+    return this.id.equals(other.id);
   }
 }

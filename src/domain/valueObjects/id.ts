@@ -5,6 +5,10 @@ export class Id {
     return new Id(value);
   }
 
+  equals(other: Id) {
+    return this.value === other.value;
+  }
+
   toString() {
     return this.value;
   }
