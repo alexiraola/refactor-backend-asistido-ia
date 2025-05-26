@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OrdersService } from "../../../application/orders.service";
 import { InMemoryOrdersRepository } from "../../../domain/repositories/orders.repository";
 import { Order } from "../../../domain/entities/order";
@@ -10,10 +10,12 @@ import { FakeNotifier } from "../../../domain/notifier";
 describe("OrdersService", () => {
   let repository: InMemoryOrdersRepository;
   let service: OrdersService;
+  let notifier: FakeNotifier;
 
   beforeEach(() => {
     repository = new InMemoryOrdersRepository();
-    service = new OrdersService(repository, new FakeNotifier());
+    notifier = new FakeNotifier();
+    service = new OrdersService(repository, notifier);
   });
 
   it("should create an order from a request", async () => {
@@ -89,6 +91,37 @@ describe("OrdersService", () => {
     const result = await service.deleteOrder(order.getId().toString());
     expect(result).toBe("Order deleted");
     await expect(repository.findAll()).resolves.toHaveLength(0);
+  });
+
+  it("should notify when an order is created", async () => {
+    const spy = vi.spyOn(notifier, "notify");
+
+    await service.createOrder({
+      items: [
+        {
+          productId: "1",
+          quantity: 1,
+          price: 10,
+        },
+      ],
+      discountCode: "DISCOUNT20",
+      shippingAddress: "Nowhere Avenue",
+    });
+
+    expect(spy).toHaveBeenCalledWith("New order created: 0. Total: 8");
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("should notify when an order is completed", async () => {
+    const order = createValidOrder();
+    await repository.save(order);
+
+    const spy = vi.spyOn(notifier, "notify");
+
+    await service.completeOrder(order.getId().toString());
+
+    expect(spy).toHaveBeenCalledWith("Order completed: 0");
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });
 
