@@ -17,7 +17,12 @@ export class InMemoryOrdersRepository implements OrdersRepository {
   }
 
   async save(order: Order): Promise<void> {
-    this.orders.push(order);
+    const index = this.orders.findIndex(o => o.equals(order));
+    if (index === -1) {
+      this.orders.push(order);
+    } else {
+      this.orders[index] = order;
+    }
   }
 
   async findAll(): Promise<Order[]> {
@@ -29,6 +34,6 @@ export class InMemoryOrdersRepository implements OrdersRepository {
   }
 
   async delete(order: Order): Promise<void> {
-    this.orders = this.orders.filter(o => o.equals(order));
+    this.orders = this.orders.filter(o => !o.equals(order));
   }
 }
