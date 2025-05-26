@@ -1,11 +1,21 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { OrdersService } from "../../../application/orders.service";
 import { InMemoryOrdersRepository } from "../../../domain/repositories/orders.repository";
+import { Order } from "../../../domain/entities/order";
+import { Discount } from "../../../domain/valueObjects/discount";
+import { Id } from "../../../domain/valueObjects/id";
+import { OrderItem } from "../../../domain/valueObjects/orderItem";
 
 describe("OrdersService", () => {
+  let repository: InMemoryOrdersRepository;
+  let service: OrdersService;
+
+  beforeEach(() => {
+    repository = new InMemoryOrdersRepository();
+    service = new OrdersService(repository);
+  });
+
   it("should create an order from a request", async () => {
-    const repository = new InMemoryOrdersRepository();
-    const service = new OrdersService(repository);
     const result = await service.createOrder({
       items: [
         {
@@ -23,8 +33,6 @@ describe("OrdersService", () => {
   });
 
   it("should create an order from a request with discount", async () => {
-    const repository = new InMemoryOrdersRepository();
-    const service = new OrdersService(repository);
     const result = await service.createOrder({
       items: [
         {
@@ -42,22 +50,11 @@ describe("OrdersService", () => {
   });
 
   it("should update an order from a request", async () => {
-    const repository = new InMemoryOrdersRepository();
-    const service = new OrdersService(repository);
-    await service.createOrder({
-      items: [
-        {
-          productId: "1",
-          quantity: 1,
-          price: 10,
-        },
-      ],
-      discountCode: "DISCOUNT20",
-      shippingAddress: "Nowhere Avenue",
-    });
+    const order = createValidOrder();
+    await repository.save(order);
 
     const result = await service.updateOrder({
-      id: "0",
+      id: order.getId().toString(),
       discountCode: "INVALID",
       shippingAddress: "Nowhere Avenue",
       status: "CREATED",
@@ -68,61 +65,41 @@ describe("OrdersService", () => {
   });
 
   it("should get all orders", async () => {
-    const repository = new InMemoryOrdersRepository();
-    const service = new OrdersService(repository);
-    await service.createOrder({
-      items: [
-        {
-          productId: "1",
-          quantity: 1,
-          price: 10,
-        },
-      ],
-      discountCode: "DISCOUNT20",
-      shippingAddress: "Nowhere Avenue",
-    });
+    const order = createValidOrder();
+    await repository.save(order);
 
     const result = await service.getAllOrders();
     expect(result).toHaveLength(1);
   });
 
   it("should complete an order", async () => {
-    const repository = new InMemoryOrdersRepository();
-    const service = new OrdersService(repository);
-    await service.createOrder({
-      items: [
-        {
-          productId: "1",
-          quantity: 1,
-          price: 10,
-        },
-      ],
-      discountCode: "DISCOUNT20",
-      shippingAddress: "Nowhere Avenue",
-    });
+    const order = createValidOrder();
+    await repository.save(order);
 
-    const result = await service.completeOrder("0");
+    const result = await service.completeOrder(order.getId().toString());
     expect(result).toBe("Order with id 0 completed");
     expect(repository.findAll()).resolves.toHaveLength(1);
   });
 
   it("should delete an order", async () => {
-    const repository = new InMemoryOrdersRepository();
-    const service = new OrdersService(repository);
-    await service.createOrder({
-      items: [
-        {
-          productId: "1",
-          quantity: 1,
-          price: 10,
-        },
-      ],
-      discountCode: "DISCOUNT20",
-      shippingAddress: "Nowhere Avenue",
-    });
+    const order = createValidOrder();
+    await repository.save(order);
 
-    const result = await service.deleteOrder("0");
+    const result = await service.deleteOrder(order.getId().toString());
     expect(result).toBe("Order deleted");
     expect(repository.findAll()).resolves.toHaveLength(0);
   });
 });
+
+function createValidOrder() {
+  const order = Order.create(
+    Id.create("0"),
+    [
+      OrderItem.create(
+        "1", 1, 10
+      )],
+    Discount.fromCode("DISCOUNT20"),
+    "Nowhere Avenue",
+  );
+  return order;
+}
