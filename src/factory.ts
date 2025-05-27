@@ -26,7 +26,10 @@ export class Factory {
     if (process.env.NODE_ENV === "test") {
       return new FakeNotifier();
     }
-    return new SendGridNotifier(process.env.SENDGRID_API_KEY || '');
+    if (!process.env.SENDGRID_API_KEY) {
+      throw new Error("SENDGRID_API_KEY is not defined");
+    }
+    return new SendGridNotifier(process.env.SENDGRID_API_KEY);
   }
 
   static createOrderService(): OrdersService {
