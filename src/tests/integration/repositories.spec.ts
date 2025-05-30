@@ -5,6 +5,7 @@ import { Id } from "../../domain/valueObjects/id";
 import { Discount } from "../../domain/valueObjects/discount";
 import { MongooseOrdersRepository } from "../../infrastructure/mongoose.orders.repository";
 import mongoose from "mongoose";
+import { Optional } from "../../domain/common/optional";
 
 describe("The order Mongo repository", () => {
   let orderRepository: MongooseOrdersRepository;
@@ -26,7 +27,7 @@ describe("The order Mongo repository", () => {
     await orderRepository.save(order);
 
     const savedOrder = await orderRepository.findById(Id.create("1"));
-    expect(savedOrder).toEqual(order);
+    expect(savedOrder).toEqual(Optional.some(order));
   });
 
   it("save a given new order with an empty discount", async () => {
@@ -35,7 +36,7 @@ describe("The order Mongo repository", () => {
     await orderRepository.save(order);
 
     const savedOrder = await orderRepository.findById(Id.create("1"));
-    expect(savedOrder).toEqual(order);
+    expect(savedOrder).toEqual(Optional.some(order));
   });
 
   it("updates a given order", async () => {
@@ -46,7 +47,7 @@ describe("The order Mongo repository", () => {
     await orderRepository.save(order);
 
     const savedOrder = await orderRepository.findById(Id.create("1"));
-    expect(savedOrder).toEqual(order);
+    expect(savedOrder).toEqual(Optional.some(order));
   });
 
   it("deletes a given order", async () => {
@@ -56,7 +57,7 @@ describe("The order Mongo repository", () => {
     await orderRepository.delete(order);
 
     const savedOrder = await orderRepository.findById(Id.create("1"));
-    expect(savedOrder).toBeNull();
+    expect(savedOrder).toEqual(Optional.none());
   });
 });
 

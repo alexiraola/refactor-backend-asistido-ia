@@ -1,3 +1,4 @@
+import { Optional } from "../common/optional";
 import { Order } from "../entities/order";
 import { Id } from "../valueObjects/id";
 
@@ -5,7 +6,7 @@ export interface OrdersRepository {
   newId(): Id;
   save(order: Order): Promise<void>;
   findAll(): Promise<Order[]>;
-  findById(id: Id): Promise<Order | null>;
+  findById(id: Id): Promise<Optional<Order>>;
   delete(order: Order): Promise<void>;
 }
 
@@ -29,8 +30,8 @@ export class InMemoryOrdersRepository implements OrdersRepository {
     return this.orders;
   }
 
-  async findById(id: Id): Promise<Order | null> {
-    return this.orders.find(order => order.getId().equals(id)) || null;
+  async findById(id: Id): Promise<Optional<Order>> {
+    return Optional.ofNullable(this.orders.find(order => order.getId().equals(id)) || null);
   }
 
   async delete(order: Order): Promise<void> {

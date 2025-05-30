@@ -41,41 +41,45 @@ export class OrdersService {
 
   async updateOrder(request: UpdateOrderRequest) {
     const order = await this.repository.findById(Id.create(request.id));
-    if (!order) {
+
+    return order.match(async order => {
+      order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus);
+      await this.repository.save(order);
+
+      await this.notifier.notify(`Order updated. New status: ${order.toDto().status}`);
+
+      return `Order updated. New status: ${order.toDto().status}`;
+    }, () => {
       throw new DomainError('Order not found');
-    }
-
-    order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus);
-    await this.repository.save(order);
-
-    await this.notifier.notify(`Order updated. New status: ${order.toDto().status}`);
-
-    return `Order updated. New status: ${order.toDto().status}`;
+    });
   }
 
   async completeOrder(id: string) {
     const order = await this.repository.findById(Id.create(id));
-    if (!order) {
+
+    return order.match(async order => {
+      order.complete();
+      await this.repository.save(order);
+
+      await this.notifier.notify(`Order completed: ${order.toDto()._id}`);
+
+      return `Order with id ${id} completed`;
+    }, () => {
       throw new DomainError('Order not found to complete');
-    }
-
-    order.complete();
-    await this.repository.save(order);
-
-    await this.notifier.notify(`Order completed: ${order.toDto()._id}`);
-
-    return `Order with id ${id} completed`;
+    });
   }
 
   async deleteOrder(id: string) {
     const order = await this.repository.findById(Id.create(id));
-    if (!order) {
+
+    return order.match(async order => {
+      await this.repository.delete(order);
+
+      await this.notifier.notify(`Order deleted: ${order.toDto()._id}`);
+
+      return 'Order deleted';
+    }, () => {
       throw new DomainError('Order not found');
-    }
-    await this.repository.delete(order);
-
-    await this.notifier.notify(`Order deleted: ${order.toDto()._id}`);
-
-    return 'Order deleted';
+    });
   }
 }
