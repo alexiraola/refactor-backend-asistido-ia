@@ -1,7 +1,7 @@
 import { OrdersService } from "./application/orders.service";
-import { FakeNotifier, Notifier } from "./domain/notifier";
+import { Notifier } from "./domain/notifier";
 import { OrdersRepository } from "./domain/repositories/orders.repository";
-import { ConsoleLogger, Logger, NoopLogger } from "./infrastructure/logger";
+import { ConsoleLogger, Logger } from "./infrastructure/logger";
 import { MongooseOrdersRepository } from "./infrastructure/mongoose.orders.repository";
 import { SendGridNotifier } from "./infrastructure/sendgrid.notifier";
 
@@ -9,9 +9,6 @@ export class Factory {
   private static orderRepository: OrdersRepository;
 
   static logger(): Logger {
-    if (process.env.NODE_ENV === "test") {
-      return new NoopLogger();
-    }
     return new ConsoleLogger();
   }
 
@@ -23,9 +20,6 @@ export class Factory {
   }
 
   static getNotifier(): Notifier {
-    if (process.env.NODE_ENV === "test") {
-      return new FakeNotifier();
-    }
     if (!process.env.SENDGRID_API_KEY) {
       throw new Error("SENDGRID_API_KEY is not defined");
     }

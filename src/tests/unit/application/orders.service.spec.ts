@@ -5,7 +5,7 @@ import { Order } from "../../../domain/entities/order";
 import { Discount } from "../../../domain/valueObjects/discount";
 import { Id } from "../../../domain/valueObjects/id";
 import { OrderItem } from "../../../domain/valueObjects/orderItem";
-import { FakeNotifier } from "../../../domain/notifier";
+import { FakeNotifier } from "../../factory";
 
 describe("OrdersService", () => {
   let repository: InMemoryOrdersRepository;

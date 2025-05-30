@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { createServer } from '../../infrastructure/server';
 import { Server } from 'http';
 import mongoose from 'mongoose';
+import { TestFactory } from '../factory';
 
 dotenv.config({
   path: process.env.NODE_ENV === 'test' ? '.test.env' : '.env'
@@ -14,9 +15,7 @@ describe("Orders API", () => {
     let server: Server;
 
     beforeAll(async () => {
-      const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
-      const PORT = process.env.PORT || "3001";
-      server = await createServer(DB_URL, PORT);
+      server = await buildServer();
     });
 
     afterAll(() => {
@@ -34,9 +33,7 @@ describe("Orders API", () => {
     let server: Server;
 
     beforeAll(async () => {
-      const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
-      const PORT = process.env.PORT || "3001";
-      server = await createServer(DB_URL, PORT);
+      server = await buildServer();
     });
 
     afterAll(() => {
@@ -74,9 +71,7 @@ describe("Orders API", () => {
     let server: Server;
 
     beforeAll(async () => {
-      const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
-      const PORT = process.env.PORT || "3001";
-      server = await createServer(DB_URL, PORT);
+      server = await buildServer();
       await mongoose.connection.dropDatabase();
     });
 
@@ -110,9 +105,7 @@ describe("Orders API", () => {
     let server: Server;
 
     beforeAll(async () => {
-      const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
-      const PORT = process.env.PORT || "3001";
-      server = await createServer(DB_URL, PORT);
+      server = await buildServer();
       await mongoose.connection.dropDatabase();
     });
 
@@ -149,9 +142,7 @@ describe("Orders API", () => {
     let server: Server;
 
     beforeAll(async () => {
-      const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
-      const PORT = process.env.PORT || "3001";
-      server = await createServer(DB_URL, PORT);
+      server = await buildServer();
       await mongoose.connection.dropDatabase();
     });
 
@@ -196,9 +187,7 @@ describe("Orders API", () => {
     let server: Server;
 
     beforeAll(async () => {
-      const DB_URL = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
-      const PORT = process.env.PORT || "3001";
-      server = await createServer(DB_URL, PORT);
+      server = await buildServer();
       await mongoose.connection.dropDatabase();
     });
 
@@ -256,6 +245,12 @@ describe("Orders API", () => {
     });
   });
 });
+
+function buildServer() {
+  const dbUrl = process.env.MONGODB_URL || "mongodb://localhost:27017/db_orders";
+  const port = process.env.PORT || "3001";
+  return createServer(dbUrl, port, TestFactory.logger(), TestFactory.createOrderService());
+}
 
 function createValidOrder(server: Server, discountCode?: string) {
   const order = {

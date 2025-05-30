@@ -5,12 +5,11 @@ import {
 import { Factory } from '../factory';
 import { connectToMongo } from './mongoose/connect';
 
-export async function createServer(DB_URL: string, PORT: string) {
+export async function createServer(dbUrl: string, port: string, logger = Factory.logger(), orderService = Factory.createOrderService()) {
   try {
-    const logger = Factory.logger();
-    const controller = new OrdersController((Factory.createOrderService()), logger);
+    const controller = new OrdersController(orderService, logger);
 
-    await connectToMongo(DB_URL, logger);
+    await connectToMongo(dbUrl, logger);
 
     const app = express();
     app.use(express.json());
@@ -24,11 +23,11 @@ export async function createServer(DB_URL: string, PORT: string) {
       res.send({ status: 'ok' });
     }));
 
-    return app.listen(PORT, () => {
-      logger.log(`Server running on port ${PORT}`);
+    return app.listen(port, () => {
+      logger.log(`Server running on port ${port}`);
     });
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     process.exit(1);
   }
 }
