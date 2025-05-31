@@ -21,6 +21,14 @@ export class Result<T, E> {
     return new Result({ ok: false, error });
   }
 
+  static fromTry<T, E>(fn: () => T): Result<T, E> {
+    try {
+      return Result.ok(fn());
+    } catch (error: any) {
+      return Result.error(error);
+    }
+  }
+
   isOk(): boolean {
     return this.result.ok;
   }

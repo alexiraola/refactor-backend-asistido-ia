@@ -69,4 +69,18 @@ describe("Result", () => {
     );
     expect(result).toBe("error");
   });
+
+  it("should create a Result from a try/catch block", () => {
+    const result = Result.fromTry(() => "success");
+    expect(result.isOk()).toBe(true);
+    expect(result.getOrElse("default")).toBe("success");
+  });
+
+  it("should create a Result from a try/catch block with an error", () => {
+    const result = Result.fromTry(() => {
+      throw new Error("error");
+    });
+    expect(result.isOk()).toBe(false);
+    expect(result.getError()).toEqual(new Error("error"));
+  });
 });
