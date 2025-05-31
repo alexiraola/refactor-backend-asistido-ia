@@ -29,6 +29,14 @@ export class Result<T, E> {
     }
   }
 
+  static async fromTryAsync<T, E>(fn: () => Promise<T>): Promise<Result<T, E>> {
+    try {
+      return Result.ok(await fn());
+    } catch (error: any) {
+      return Result.error(error);
+    }
+  }
+
   isOk(): boolean {
     return this.result.ok;
   }
