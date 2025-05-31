@@ -23,16 +23,18 @@ export class OrdersController {
 
   getAllOrders = async (_req: Request, res: Response) => {
     this.logger.log("GET /orders");
-    try {
-      const orders = await this.useCase.getAllOrders();
-      res.json(orders);
-    } catch (error: any) {
-      if (error instanceof DomainError) {
-        res.status(400).send(error.message);
-      } else {
-        res.status(500).send("Unexpected error");
+    const orders = await this.useCase.getAllOrders();
+
+    orders.match(
+      orders => res.json(orders),
+      error => {
+        if (error instanceof DomainError) {
+          return res.status(400).send(error.message);
+        } else {
+          return res.status(500).send("Unexpected error");
+        }
       }
-    }
+    );
   };
 
   updateOrder = async (req: Request, res: Response) => {

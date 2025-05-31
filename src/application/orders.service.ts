@@ -36,7 +36,7 @@ export class OrdersService {
 
   async getAllOrders() {
     const orders = await this.repository.findAll();
-    return orders.map(order => order.toDto());
+    return orders.map(orders => orders.map(order => order.toDto()));
   }
 
   async updateOrder(request: UpdateOrderRequest) {

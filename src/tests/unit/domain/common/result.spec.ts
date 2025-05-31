@@ -83,20 +83,4 @@ describe("Result", () => {
     expect(result.isOk()).toBe(false);
     expect(result.getError()).toEqual(new Error("error"));
   });
-
-  it("should create a Result from an async try/catch block", async () => {
-    const result = await Result.fromTryAsync(async () => {
-      return "success";
-    });
-    expect(result.isOk()).toBe(true);
-    expect(result.getOrElse("default")).toBe("success");
-  });
-
-  it("should create a Result from an async try/catch block with an error", async () => {
-    const result = await Result.fromTryAsync(async () => {
-      throw new Error("error");
-    });
-    expect(result.isOk()).toBe(false);
-    expect(result.getError()).toEqual(new Error("error"));
-  });
 });

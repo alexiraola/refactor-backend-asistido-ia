@@ -32,7 +32,7 @@ describe("OrdersService", () => {
     });
 
     expect(result).toBe("Order created with total: 10");
-    await expect(repository.findAll()).resolves.toHaveLength(1);
+    expect((await repository.findAll()).getOrElse([])).toHaveLength(1);
   });
 
   it("should create an order from a request with discount", async () => {
@@ -49,7 +49,7 @@ describe("OrdersService", () => {
     });
 
     expect(result).toBe("Order created with total: 8");
-    await expect(repository.findAll()).resolves.toHaveLength(1);
+    expect((await repository.findAll()).getOrElse([])).toHaveLength(1);
   });
 
   it("should update an order from a request", async () => {
@@ -64,7 +64,7 @@ describe("OrdersService", () => {
     });
 
     expect(result).toBe("Order updated. New status: CREATED");
-    await expect(repository.findAll()).resolves.toHaveLength(1);
+    expect((await repository.findAll()).getOrElse([])).toHaveLength(1);
   });
 
   it("should get all orders", async () => {
@@ -72,7 +72,7 @@ describe("OrdersService", () => {
     await repository.save(order);
 
     const result = await service.getAllOrders();
-    expect(result).toHaveLength(1);
+    expect(result.getOrElse([])).toHaveLength(1);
   });
 
   it("should complete an order", async () => {
@@ -81,7 +81,7 @@ describe("OrdersService", () => {
 
     const result = await service.completeOrder(order.getId().toString());
     expect(result).toBe("Order with id 0 completed");
-    await expect(repository.findAll()).resolves.toHaveLength(1);
+    expect((await repository.findAll()).getOrElse([])).toHaveLength(1);
   });
 
   it("should delete an order", async () => {
@@ -90,7 +90,7 @@ describe("OrdersService", () => {
 
     const result = await service.deleteOrder(order.getId().toString());
     expect(result).toBe("Order deleted");
-    await expect(repository.findAll()).resolves.toHaveLength(0);
+    expect((await repository.findAll()).getOrElse([])).toHaveLength(0);
   });
 
   it("should notify when an order is created", async () => {
