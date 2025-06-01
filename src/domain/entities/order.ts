@@ -26,7 +26,7 @@ export class Order {
 
   update(discountCode?: string, shippingAddress?: string, status?: OrderStatus) {
     if (discountCode) {
-      this.discount = Discount.fromCodeResult(discountCode).get();
+      this.discount = Discount.fromCode(discountCode).get();
     }
     if (shippingAddress) {
       this.shippingAddress = shippingAddress;

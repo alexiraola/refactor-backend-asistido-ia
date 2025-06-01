@@ -4,15 +4,11 @@ import { DomainError } from "../error";
 export class Discount {
   private constructor(private readonly code: string, private readonly value: number) { }
 
-  static fromCode(code: string) {
+  static fromCode(code: string): Result<Discount, DomainError> {
     if (code === 'DISCOUNT20') {
-      return new Discount(code, 0.8);
+      return Result.ok(new Discount(code, 0.8));
     }
-    return new Discount(code, 1);
-  }
-
-  static fromCodeResult(code: string): Result<Discount, DomainError> {
-    return Result.fromTry(() => Discount.fromCode(code));
+    return Result.ok(new Discount(code, 1));
   }
 
   apply(price: number) {
