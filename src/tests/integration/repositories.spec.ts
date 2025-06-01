@@ -43,7 +43,7 @@ describe("The order Mongo repository", () => {
     const order = createValidOrder("DISCOUNT20");
     await orderRepository.save(order);
 
-    order.updateResult("DISCOUNT30", "Shipping address 2").get();
+    order.updateResult("DISCOUNT30", "Shipping address 2");
     await orderRepository.save(order);
 
     const savedOrder = await orderRepository.findById(Id.create("1"));

@@ -1,3 +1,4 @@
+import { Result } from "../domain/common/result";
 import { Order, OrderStatus } from "../domain/entities/order";
 import { DomainError } from "../domain/error";
 import { Notifier } from "../domain/notifier";
@@ -42,16 +43,17 @@ export class OrdersService {
   async updateOrder(request: UpdateOrderRequest) {
     const order = await this.repository.findById(Id.create(request.id));
 
-    return order.match(async order => {
-      order.updateResult(request.discountCode, request.shippingAddress, request.status as OrderStatus).get();
-      await this.repository.save(order);
+    return Result.fromOptional(order, new DomainError('Order not found')).map(order => {
+      return order.updateResult(request.discountCode, request.shippingAddress, request.status as OrderStatus).match(async () => {
+        await this.repository.save(order);
 
-      await this.notifier.notify(`Order updated. New status: ${order.toDto().status}`);
+        await this.notifier.notify(`Order updated. New status: ${order.toDto().status}`);
 
-      return `Order updated. New status: ${order.toDto().status}`;
-    }, () => {
-      throw new DomainError('Order not found');
-    });
+        return `Order updated. New status: ${order.toDto().status}`;
+      }, (error) => {
+        throw error;
+      });
+    }).get();
   }
 
   async completeOrder(id: string) {
