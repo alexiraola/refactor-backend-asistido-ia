@@ -37,6 +37,19 @@ export class Order {
     }
   }
 
+  updateResult(discountCode?: string, shippingAddress?: string, status?: OrderStatus): Result<void, DomainError> {
+    if (discountCode) {
+      this.discount = Discount.fromCode(discountCode).get();
+    }
+    if (shippingAddress) {
+      this.shippingAddress = shippingAddress;
+    }
+    if (status === OrderStatus.Completed) {
+      return this.complete();
+    }
+    return Result.ok();
+  }
+
   getId() {
     return this.id;
   }

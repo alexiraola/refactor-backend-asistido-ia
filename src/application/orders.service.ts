@@ -43,7 +43,7 @@ export class OrdersService {
     const order = await this.repository.findById(Id.create(request.id));
 
     return order.match(async order => {
-      order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus);
+      order.updateResult(request.discountCode, request.shippingAddress, request.status as OrderStatus).get();
       await this.repository.save(order);
 
       await this.notifier.notify(`Order updated. New status: ${order.toDto().status}`);
