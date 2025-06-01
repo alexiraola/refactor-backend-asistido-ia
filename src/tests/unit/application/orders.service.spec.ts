@@ -126,7 +126,7 @@ describe("OrdersService", () => {
 });
 
 function createValidOrder() {
-  const order = Order.create(
+  const order = Order.createResult(
     Id.create("0"),
     [
       OrderItem.create(
@@ -134,6 +134,6 @@ function createValidOrder() {
       ).get()],
     Discount.fromCode("DISCOUNT20").get(),
     "Nowhere Avenue",
-  );
+  ).get();
   return order;
 }

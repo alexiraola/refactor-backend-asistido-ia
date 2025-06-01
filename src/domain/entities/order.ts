@@ -1,3 +1,4 @@
+import { Result } from "../common/result";
 import { DomainError } from "../error";
 import { Discount } from "../valueObjects/discount";
 import { Id } from "../valueObjects/id";
@@ -22,6 +23,13 @@ export class Order {
       throw new DomainError("The order must have at least one item");
     }
     return new Order(id, items, discount, shippingAddress, status);
+  }
+
+  static createResult(id: Id, items: OrderItem[], discount: Discount, shippingAddress: string, status = OrderStatus.Created): Result<Order, DomainError> {
+    if (items.length === 0) {
+      return Result.error(new DomainError("The order must have at least one item"));
+    }
+    return Result.ok(new Order(id, items, discount, shippingAddress, status));
   }
 
   update(discountCode?: string, shippingAddress?: string, status?: OrderStatus) {

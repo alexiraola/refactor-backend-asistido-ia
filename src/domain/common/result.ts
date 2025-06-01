@@ -39,7 +39,7 @@ export class Result<T, E> {
 
   get(): T {
     if (!this.result.ok) {
-      throw new Error("Result is not ok");
+      throw this.result.error;
     }
     return this.result.value;
   }

@@ -25,13 +25,13 @@ export class MongooseOrdersRepository implements OrdersRepository {
   async findAll(): Promise<Result<Order[], Error>> {
     const orders = await OrderModel.find();
     return Result.ok(orders.map((order) => {
-      return Order.create(
+      return Order.createResult(
         Id.create(order._id),
         order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
         Discount.fromCode(order.discountCode || "").get(),
         order.shippingAddress,
         isValidStatus(order.status) ? order.status : undefined
-      );
+      ).get();
     }));
   }
 
@@ -42,13 +42,13 @@ export class MongooseOrdersRepository implements OrdersRepository {
       return Optional.none();
     }
 
-    return Optional.some(Order.create(
+    return Optional.some(Order.createResult(
       Id.create(order._id),
       order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
       Discount.fromCode(order.discountCode || "").get(),
       order.shippingAddress,
       isValidStatus(order.status) ? order.status : undefined
-    ));
+    ).get());
   }
 
   async delete(order: Order): Promise<void> {
