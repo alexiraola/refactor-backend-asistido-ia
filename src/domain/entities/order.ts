@@ -18,14 +18,7 @@ export class Order {
     private status: OrderStatus,
   ) { }
 
-  static create(id: Id, items: OrderItem[], discount: Discount, shippingAddress: string, status = OrderStatus.Created) {
-    if (items.length === 0) {
-      throw new DomainError("The order must have at least one item");
-    }
-    return new Order(id, items, discount, shippingAddress, status);
-  }
-
-  static createResult(id: Id, items: OrderItem[], discount: Discount, shippingAddress: string, status = OrderStatus.Created): Result<Order, DomainError> {
+  static create(id: Id, items: OrderItem[], discount: Discount, shippingAddress: string, status = OrderStatus.Created): Result<Order, DomainError> {
     if (items.length === 0) {
       return Result.error(new DomainError("The order must have at least one item"));
     }

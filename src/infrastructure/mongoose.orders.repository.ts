@@ -25,7 +25,7 @@ export class MongooseOrdersRepository implements OrdersRepository {
   async findAll(): Promise<Result<Order[], Error>> {
     const orders = await OrderModel.find();
     return Result.ok(orders.map((order) => {
-      return Order.createResult(
+      return Order.create(
         Id.create(order._id),
         order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
         Discount.fromCode(order.discountCode || "").get(),
@@ -42,7 +42,7 @@ export class MongooseOrdersRepository implements OrdersRepository {
       return Optional.none();
     }
 
-    return Optional.some(Order.createResult(
+    return Optional.some(Order.create(
       Id.create(order._id),
       order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
       Discount.fromCode(order.discountCode || "").get(),

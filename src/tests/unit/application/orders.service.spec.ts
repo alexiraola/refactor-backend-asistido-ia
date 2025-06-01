@@ -126,7 +126,7 @@ describe("OrdersService", () => {
 });
 
 function createValidOrder() {
-  const order = Order.createResult(
+  const order = Order.create(
     Id.create("0"),
     [
       OrderItem.create(

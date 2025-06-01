@@ -23,7 +23,7 @@ export class OrdersService {
   constructor(private readonly repository: OrdersRepository, private readonly notifier: Notifier) { }
 
   async createOrder(request: CreateOrderRequest) {
-    const order = Order.createResult(
+    const order = Order.create(
       this.repository.newId(),
       request.items.map((item: any) => OrderItem.create(item.productId, item.quantity || 0, item.price || 0).get()),
       Discount.fromCode(request.discountCode).get(),

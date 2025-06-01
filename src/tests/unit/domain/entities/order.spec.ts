@@ -6,32 +6,32 @@ import { Id } from "../../../../domain/valueObjects/id";
 
 describe("Order", () => {
   it("should create an order", () => {
-    const order = Order.createResult(Id.create("1"), [OrderItem.create(
+    const order = Order.create(Id.create("1"), [OrderItem.create(
       "1", 1, 10
     ).get()], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get();
     expect(order).toBeInstanceOf(Order);
   });
 
   it("should throw if no items are provided", () => {
-    expect(() => Order.createResult(Id.create("1"), [], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get()).toThrow();
+    expect(() => Order.create(Id.create("1"), [], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get()).toThrow();
   });
 
   it("should calculate the total", () => {
-    const order = Order.createResult(Id.create("1"), [OrderItem.create(
+    const order = Order.create(Id.create("1"), [OrderItem.create(
       "1", 1, 10
     ).get()], Discount.fromCode("DISCOUNT").get(), "Nowhere Avenue").get();
     expect(order.total()).toBe(10);
   });
 
   it("should calculate the total with discount", () => {
-    const order = Order.createResult(Id.create("1"), [OrderItem.create(
+    const order = Order.create(Id.create("1"), [OrderItem.create(
       "1", 1, 10
     ).get()], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get();
     expect(order.total()).toBe(8);
   });
 
   it("should mark order as completed", () => {
-    const order = Order.createResult(Id.create("1"), [OrderItem.create(
+    const order = Order.create(Id.create("1"), [OrderItem.create(
       "1", 1, 10
     ).get()], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get();
     order.complete();
@@ -40,7 +40,7 @@ describe("Order", () => {
   });
 
   it("should throw if trying to complete an already completed order", () => {
-    const order = Order.createResult(Id.create("1"), [OrderItem.create(
+    const order = Order.create(Id.create("1"), [OrderItem.create(
       "1", 1, 10
     ).get()], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get();
     order.complete();
@@ -48,13 +48,13 @@ describe("Order", () => {
   });
 
   it("should compare two orders", () => {
-    const order1 = Order.createResult(Id.create("1"), [OrderItem.create(
+    const order1 = Order.create(Id.create("1"), [OrderItem.create(
       "1", 1, 10
     ).get()], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get();
-    const order2 = Order.createResult(Id.create("2"), [OrderItem.create(
+    const order2 = Order.create(Id.create("2"), [OrderItem.create(
       "1", 1, 10
     ).get()], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get();
-    const order3 = Order.createResult(Id.create("1"), [OrderItem.create(
+    const order3 = Order.create(Id.create("1"), [OrderItem.create(
       "1", 1, 10
     ).get()], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get();
 
