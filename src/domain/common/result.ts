@@ -37,6 +37,13 @@ export class Result<T, E> {
     return !this.result.ok;
   }
 
+  get(): T {
+    if (!this.result.ok) {
+      throw new Error("Result is not ok");
+    }
+    return this.result.value;
+  }
+
   getOrElse(defaultValue: T): T {
     return this.result.ok ? this.result.value : defaultValue;
   }

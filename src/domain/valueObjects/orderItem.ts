@@ -1,3 +1,4 @@
+import { Result } from "../common/result";
 import { DomainError } from "../error";
 
 export class OrderItem {
@@ -15,6 +16,10 @@ export class OrderItem {
       throw new DomainError("Price must be greater than 0");
     }
     return new OrderItem(productId, quantity, price);
+  }
+
+  static createResult(productId: string, quantity: number, price: number): Result<OrderItem, DomainError> {
+    return Result.fromTry(() => OrderItem.create(productId, quantity, price));
   }
 
   total() {
