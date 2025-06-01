@@ -13,8 +13,8 @@ type ResultType<T, E> = Ok<T> | Error<E>;
 export class Result<T, E> {
   private constructor(private readonly result: ResultType<T, E>) { }
 
-  static ok<T, E>(value: T): Result<T, E> {
-    return new Result({ ok: true, value });
+  static ok<T, E>(value: T | undefined = undefined): Result<T, E> {
+    return new Result({ ok: true, value: value as T });
   }
 
   static error<T, E>(error: E): Result<T, E> {
