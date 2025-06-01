@@ -9,15 +9,13 @@ export class OrderItem {
   ) { }
 
   static create(productId: string, quantity: number, price: number): Result<OrderItem, DomainError> {
-    return Result.fromTry(() => {
-      if (quantity < 1) {
-        throw new DomainError("Quantity must be greater than 0");
-      }
-      if (price < 0) {
-        throw new DomainError("Price must be greater than 0");
-      }
-      return new OrderItem(productId, quantity, price);
-    });
+    if (quantity < 1) {
+      return Result.error(new DomainError("Quantity must be greater than 0"));
+    }
+    if (price < 0) {
+      return Result.error(new DomainError("Price must be greater than 0"));
+    }
+    return Result.ok(new OrderItem(productId, quantity, price));
   }
 
   total() {
