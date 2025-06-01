@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Result } from "../../../../domain/common/result";
+import { Optional } from "../../../../domain/common/optional";
 
 describe("Result", () => {
   it("should create a success Result", () => {
@@ -82,5 +83,17 @@ describe("Result", () => {
     });
     expect(result.isOk()).toBe(false);
     expect(result.getError()).toEqual(new Error("error"));
+  });
+
+  it("should create a Result from some optional", () => {
+    const result = Result.fromOptional(Optional.some("success"), "error");
+    expect(result.isOk()).toBe(true);
+    expect(result.getOrElse("default")).toBe("success");
+  });
+
+  it("should create a Result from a none optional", () => {
+    const result = Result.fromOptional(Optional.none(), "error");
+    expect(result.isOk()).toBe(false);
+    expect(result.getError()).toBe("error");
   });
 });

@@ -1,3 +1,5 @@
+import { Optional } from "./optional";
+
 type Ok<T> = {
   ok: true,
   value: T
@@ -27,6 +29,10 @@ export class Result<T, E> {
     } catch (error: any) {
       return Result.error(error);
     }
+  }
+
+  static fromOptional<T, E>(optional: Optional<T>, error: E): Result<T, E> {
+    return optional.match(Result.ok<T, E>, () => Result.error(error));
   }
 
   isOk(): boolean {
