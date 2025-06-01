@@ -3,6 +3,7 @@ import { OrderItem } from "../../../../domain/valueObjects/orderItem";
 import { Order } from "../../../../domain/entities/order";
 import { Discount } from "../../../../domain/valueObjects/discount";
 import { Id } from "../../../../domain/valueObjects/id";
+import { DomainError } from "../../../../domain/error";
 
 describe("Order", () => {
   it("should create an order", () => {
@@ -12,8 +13,10 @@ describe("Order", () => {
     expect(order).toBeInstanceOf(Order);
   });
 
-  it("should throw if no items are provided", () => {
-    expect(() => Order.create(Id.create("1"), [], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get()).toThrow();
+  it("should return error if no items are provided", () => {
+    const order = Order.create(Id.create("1"), [], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue");
+    expect(order.isOk()).toBe(false);
+    expect(order.getError()).toEqual(new DomainError("The order must have at least one item"));
   });
 
   it("should calculate the total", () => {
