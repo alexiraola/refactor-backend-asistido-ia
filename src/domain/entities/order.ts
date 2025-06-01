@@ -33,7 +33,7 @@ export class Order {
       this.shippingAddress = shippingAddress;
     }
     if (status === OrderStatus.Completed) {
-      this.complete();
+      this.complete().get();
     }
   }
 
@@ -46,11 +46,13 @@ export class Order {
     return this.discount.apply(total);
   }
 
-  complete() {
+  complete(): Result<void, DomainError> {
     if (this.status !== OrderStatus.Created) {
-      throw new DomainError(`Cannot complete an order with status: ${this.status}`);
+      return Result.error(new DomainError(`Cannot complete an order with status: ${this.status}`));
     }
     this.status = OrderStatus.Completed;
+
+    return Result.ok();
   }
 
   toDto() {

@@ -58,7 +58,7 @@ export class OrdersService {
     const order = await this.repository.findById(Id.create(id));
 
     return order.match(async order => {
-      order.complete();
+      order.complete().get();
       await this.repository.save(order);
 
       await this.notifier.notify(`Order completed: ${order.toDto()._id}`);

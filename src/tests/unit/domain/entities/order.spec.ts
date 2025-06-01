@@ -37,7 +37,7 @@ describe("Order", () => {
     const order = Order.create(Id.create("1"), [OrderItem.create(
       "1", 1, 10
     ).get()], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get();
-    order.complete();
+    order.complete().get();
 
     expect(order.toDto().status).toBe("COMPLETED");
   });
@@ -46,8 +46,8 @@ describe("Order", () => {
     const order = Order.create(Id.create("1"), [OrderItem.create(
       "1", 1, 10
     ).get()], Discount.fromCode("DISCOUNT20").get(), "Nowhere Avenue").get();
-    order.complete();
-    expect(() => order.complete()).toThrow();
+    order.complete().get();
+    expect(() => order.complete().get()).toThrow();
   });
 
   it("should compare two orders", () => {
