@@ -44,7 +44,7 @@ export class OrdersService {
     const order = await this.repository.findById(Id.create(request.id));
 
     return Result.fromOptional(order, new DomainError('Order not found')).map(order => {
-      return order.updateResult(request.discountCode, request.shippingAddress, request.status as OrderStatus).match(async () => {
+      return order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus).match(async () => {
         await this.repository.save(order);
 
         await this.notifier.notify(`Order updated. New status: ${order.toDto().status}`);

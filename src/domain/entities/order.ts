@@ -25,19 +25,7 @@ export class Order {
     return Result.ok(new Order(id, items, discount, shippingAddress, status));
   }
 
-  update(discountCode?: string, shippingAddress?: string, status?: OrderStatus) {
-    if (discountCode) {
-      this.discount = Discount.fromCode(discountCode).get();
-    }
-    if (shippingAddress) {
-      this.shippingAddress = shippingAddress;
-    }
-    if (status === OrderStatus.Completed) {
-      this.complete().get();
-    }
-  }
-
-  updateResult(discountCode?: string, shippingAddress?: string, status?: OrderStatus): Result<void, DomainError> {
+  update(discountCode?: string, shippingAddress?: string, status?: OrderStatus): Result<void, DomainError> {
     if (discountCode) {
       this.discount = Discount.fromCode(discountCode).get();
     }
