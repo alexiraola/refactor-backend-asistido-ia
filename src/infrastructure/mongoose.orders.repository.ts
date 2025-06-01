@@ -28,7 +28,7 @@ export class MongooseOrdersRepository implements OrdersRepository {
       return Order.create(
         Id.create(order._id),
         order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
-        Discount.fromCode(order.discountCode || ""),
+        Discount.fromCodeResult(order.discountCode || "").get(),
         order.shippingAddress,
         isValidStatus(order.status) ? order.status : undefined
       );
@@ -45,7 +45,7 @@ export class MongooseOrdersRepository implements OrdersRepository {
     return Optional.some(Order.create(
       Id.create(order._id),
       order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
-      Discount.fromCode(order.discountCode || ""),
+      Discount.fromCodeResult(order.discountCode || "").get(),
       order.shippingAddress,
       isValidStatus(order.status) ? order.status : undefined
     ));
