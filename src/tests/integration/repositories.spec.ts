@@ -63,7 +63,7 @@ describe("The order Mongo repository", () => {
 
 function createValidOrder(discountCode: string): Order {
   const items = [
-    OrderItem.create("1", 2, 3),
+    OrderItem.create("1", 2, 3).get(),
   ];
 
   return Order.create(Id.create("1"), items, Discount.fromCode(discountCode), "Shipping address");

@@ -25,7 +25,7 @@ export class OrdersService {
   async createOrder(request: CreateOrderRequest) {
     const order = Order.create(
       this.repository.newId(),
-      request.items.map((item: any) => OrderItem.create(item.productId, item.quantity || 0, item.price || 0)),
+      request.items.map((item: any) => OrderItem.create(item.productId, item.quantity || 0, item.price || 0).get()),
       Discount.fromCode(request.discountCode),
       request.shippingAddress
     );
