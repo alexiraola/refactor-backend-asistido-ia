@@ -33,7 +33,7 @@ describe("OrdersService", () => {
 
     expect(result).toBe("Order created with total: 10");
 
-    repository.findAllFuture().run(orders => {
+    repository.findAll().run(orders => {
       expect(orders).toHaveLength(1);
       done();
     }, error);
@@ -54,7 +54,7 @@ describe("OrdersService", () => {
 
     expect(result).toBe("Order created with total: 8");
 
-    repository.findAllFuture().run(orders => {
+    repository.findAll().run(orders => {
       expect(orders).toHaveLength(1);
       done();
     }, error);
@@ -73,7 +73,7 @@ describe("OrdersService", () => {
 
     expect(result).toBe("Order updated. New status: CREATED");
 
-    repository.findAllFuture().run(orders => {
+    repository.findAll().run(orders => {
       expect(orders).toHaveLength(1);
       done();
     }, error);
@@ -96,7 +96,7 @@ describe("OrdersService", () => {
     const result = await service.completeOrder(order.getId().toString());
     expect(result).toBe("Order with id 0 completed");
 
-    repository.findAllFuture().run(orders => {
+    repository.findAll().run(orders => {
       expect(orders).toHaveLength(1);
       done();
     }, error);
@@ -109,7 +109,7 @@ describe("OrdersService", () => {
     const result = await service.deleteOrder(order.getId().toString());
     expect(result).toBe("Order deleted");
 
-    repository.findAllFuture().run(orders => {
+    repository.findAll().run(orders => {
       expect(orders).toHaveLength(0);
       done();
     }, error);

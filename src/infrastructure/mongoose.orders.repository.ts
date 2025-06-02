@@ -23,20 +23,7 @@ export class MongooseOrdersRepository implements OrdersRepository {
     await OrderModel.findByIdAndUpdate(_id, data, { upsert: true });
   }
 
-  async findAll(): Promise<Result<Order[], Error>> {
-    const orders = await OrderModel.find();
-    return Result.ok(orders.map((order) => {
-      return Order.create(
-        Id.create(order._id),
-        order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
-        Discount.fromCode(order.discountCode || "").get(),
-        order.shippingAddress,
-        isValidStatus(order.status) ? order.status : undefined
-      ).get();
-    }));
-  }
-
-  findAllFuture(): Future<Order[]> {
+  findAll(): Future<Order[]> {
     return Future.fromPromise(OrderModel.find()).map(orders => orders.map((order) => {
       return Order.create(
         Id.create(order._id),
