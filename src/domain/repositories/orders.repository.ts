@@ -1,3 +1,4 @@
+import { Future } from "../common/future";
 import { Optional } from "../common/optional";
 import { Result } from "../common/result";
 import { Order } from "../entities/order";
@@ -7,6 +8,7 @@ export interface OrdersRepository {
   newId(): Id;
   save(order: Order): Promise<void>;
   findAll(): Promise<Result<Order[], Error>>;
+  findAllFuture(): Future<Order[]>;
   findById(id: Id): Promise<Optional<Order>>;
   delete(order: Order): Promise<void>;
 }
@@ -29,6 +31,10 @@ export class InMemoryOrdersRepository implements OrdersRepository {
 
   async findAll(): Promise<Result<Order[], Error>> {
     return Result.ok(this.orders);
+  }
+
+  findAllFuture(): Future<Order[]> {
+    return Future.of(this.orders);
   }
 
   async findById(id: Id): Promise<Optional<Order>> {

@@ -18,7 +18,7 @@ describe("OrdersService", () => {
     service = new OrdersService(repository, notifier);
   });
 
-  it("should create an order from a request", async () => {
+  it("should create an order from a request", () => new Promise<void>(async (done, error) => {
     const result = await service.createOrder({
       items: [
         {
@@ -32,10 +32,14 @@ describe("OrdersService", () => {
     });
 
     expect(result).toBe("Order created with total: 10");
-    expect((await repository.findAll()).getOrElse([])).toHaveLength(1);
-  });
 
-  it("should create an order from a request with discount", async () => {
+    repository.findAllFuture().run(orders => {
+      expect(orders).toHaveLength(1);
+      done();
+    }, error);
+  }));
+
+  it("should create an order from a request with discount", () => new Promise<void>(async (done, error) => {
     const result = await service.createOrder({
       items: [
         {
@@ -49,10 +53,14 @@ describe("OrdersService", () => {
     });
 
     expect(result).toBe("Order created with total: 8");
-    expect((await repository.findAll()).getOrElse([])).toHaveLength(1);
-  });
 
-  it("should update an order from a request", async () => {
+    repository.findAllFuture().run(orders => {
+      expect(orders).toHaveLength(1);
+      done();
+    }, error);
+  }));
+
+  it("should update an order from a request", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
     await repository.save(order);
 
@@ -64,34 +72,48 @@ describe("OrdersService", () => {
     });
 
     expect(result).toBe("Order updated. New status: CREATED");
-    expect((await repository.findAll()).getOrElse([])).toHaveLength(1);
-  });
 
-  it("should get all orders", async () => {
+    repository.findAllFuture().run(orders => {
+      expect(orders).toHaveLength(1);
+      done();
+    }, error);
+  }));
+
+  it("should get all orders", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
     await repository.save(order);
 
-    const result = await service.getAllOrders();
-    expect(result.getOrElse([])).toHaveLength(1);
-  });
+    service.getAllOrders().run(orders => {
+      expect(orders).toHaveLength(1);
+      done();
+    }, error);
+  }));
 
-  it("should complete an order", async () => {
+  it("should complete an order", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
     await repository.save(order);
 
     const result = await service.completeOrder(order.getId().toString());
     expect(result).toBe("Order with id 0 completed");
-    expect((await repository.findAll()).getOrElse([])).toHaveLength(1);
-  });
 
-  it("should delete an order", async () => {
+    repository.findAllFuture().run(orders => {
+      expect(orders).toHaveLength(1);
+      done();
+    }, error);
+  }));
+
+  it("should delete an order", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
     await repository.save(order);
 
     const result = await service.deleteOrder(order.getId().toString());
     expect(result).toBe("Order deleted");
-    expect((await repository.findAll()).getOrElse([])).toHaveLength(0);
-  });
+
+    repository.findAllFuture().run(orders => {
+      expect(orders).toHaveLength(0);
+      done();
+    }, error);
+  }));
 
   it("should notify when an order is created", async () => {
     const spy = vi.spyOn(notifier, "notify");

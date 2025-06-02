@@ -35,9 +35,8 @@ export class OrdersService {
     return `Order created with total: ${order.total()}`;
   }
 
-  async getAllOrders() {
-    const orders = await this.repository.findAll();
-    return orders.map(orders => orders.map(order => order.toDto()));
+  getAllOrders() {
+    return this.repository.findAllFuture().map(orders => orders.map(order => order.toDto()));
   }
 
   async updateOrder(request: UpdateOrderRequest) {

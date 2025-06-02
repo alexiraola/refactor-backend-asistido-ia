@@ -21,11 +21,10 @@ export class OrdersController {
     }
   };
 
-  getAllOrders = async (_req: Request, res: Response) => {
+  getAllOrders = (_req: Request, res: Response) => {
     this.logger.log("GET /orders");
-    const orders = await this.useCase.getAllOrders();
 
-    orders.match(
+    this.useCase.getAllOrders().run(
       orders => res.json(orders),
       error => {
         if (error instanceof DomainError) {

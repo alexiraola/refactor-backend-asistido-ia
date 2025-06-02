@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import { OrderModel } from "./mongoose/order.model";
 import { Optional } from "../domain/common/optional";
 import { Result } from "../domain/common/result";
+import { Future } from "../domain/common/future";
 
 function isValidStatus(status: string): status is OrderStatus {
   return Object.values(OrderStatus).includes(status as OrderStatus);
@@ -25,6 +26,18 @@ export class MongooseOrdersRepository implements OrdersRepository {
   async findAll(): Promise<Result<Order[], Error>> {
     const orders = await OrderModel.find();
     return Result.ok(orders.map((order) => {
+      return Order.create(
+        Id.create(order._id),
+        order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
+        Discount.fromCode(order.discountCode || "").get(),
+        order.shippingAddress,
+        isValidStatus(order.status) ? order.status : undefined
+      ).get();
+    }));
+  }
+
+  findAllFuture(): Future<Order[]> {
+    return Future.fromPromise(OrderModel.find()).map(orders => orders.map((order) => {
       return Order.create(
         Id.create(order._id),
         order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
