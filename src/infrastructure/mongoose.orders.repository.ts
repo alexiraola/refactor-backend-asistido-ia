@@ -34,20 +34,22 @@ export class MongooseOrdersRepository implements OrdersRepository {
     }));
   }
 
-  async findById(id: Id): Promise<Optional<Order>> {
-    const order = await OrderModel.findById(id.toString());
+  findByIdFuture(id: Id): Future<Optional<Order>> {
+    return Future.fromPromise(new Promise<Optional<Order>>(async (resolve, _reject) => {
+      const order = await OrderModel.findById(id.toString());
 
-    if (!order) {
-      return Optional.none();
-    }
+      if (!order) {
+        return resolve(Optional.none<Order>());
+      }
 
-    return Optional.some(Order.create(
-      Id.create(order._id),
-      order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
-      Discount.fromCode(order.discountCode || "").get(),
-      order.shippingAddress,
-      isValidStatus(order.status) ? order.status : undefined
-    ).get());
+      return resolve(Optional.some(Order.create(
+        Id.create(order._id),
+        order.items.map((item) => OrderItem.create(item.productId, item.quantity, item.price).get()),
+        Discount.fromCode(order.discountCode || "").get(),
+        order.shippingAddress,
+        isValidStatus(order.status) ? order.status : undefined
+      ).get()));
+    }));
   }
 
   async delete(order: Order): Promise<void> {

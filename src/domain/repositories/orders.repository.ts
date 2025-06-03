@@ -7,7 +7,7 @@ export interface OrdersRepository {
   newId(): Id;
   save(order: Order): Future<void>;
   findAll(): Future<Order[]>;
-  findById(id: Id): Promise<Optional<Order>>;
+  findByIdFuture(id: Id): Future<Optional<Order>>;
   delete(order: Order): Promise<void>;
 }
 
@@ -34,8 +34,8 @@ export class InMemoryOrdersRepository implements OrdersRepository {
     return Future.of(this.orders);
   }
 
-  async findById(id: Id): Promise<Optional<Order>> {
-    return Optional.ofNullable(this.orders.find(order => order.getId().equals(id)) || null);
+  findByIdFuture(id: Id): Future<Optional<Order>> {
+    return Future.of(Optional.ofNullable(this.orders.find(order => order.getId().equals(id)) || null));
   }
 
   async delete(order: Order): Promise<void> {

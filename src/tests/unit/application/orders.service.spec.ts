@@ -108,7 +108,7 @@ describe("OrdersService", () => {
     const order = createValidOrder();
 
     repository.save(order)
-      .flatMap(() => Future.fromPromise(service.deleteOrder(order.getId().toString())))
+      .flatMap(() => service.deleteOrder(order.getId().toString()))
       .run(result => {
         expect(result).toBe("Order deleted");
         repository.findAll().run(orders => {

@@ -70,17 +70,18 @@ export class OrdersController {
     )
   };
 
-  deleteOrder = async (req: Request, res: Response) => {
+  deleteOrder = (req: Request, res: Response) => {
     this.logger.log("DELETE /orders/:id");
 
-    try {
-      res.send((await this.useCase.deleteOrder(req.params.id)));
-    } catch (error: any) {
-      if (error instanceof DomainError) {
-        res.status(400).send(error.message);
-      } else {
-        res.status(500).send("Unexpected error");
+    this.useCase.deleteOrder(req.params.id).run(
+      message => res.send(message),
+      error => {
+        if (error instanceof DomainError) {
+          res.status(400).send(error.message);
+        } else {
+          res.status(500).send("Unexpected error");
+        }
       }
-    }
+    )
   };
 }

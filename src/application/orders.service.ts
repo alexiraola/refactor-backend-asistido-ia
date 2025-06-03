@@ -41,7 +41,7 @@ export class OrdersService {
   }
 
   updateOrder(request: UpdateOrderRequest) {
-    return Future.fromPromise(this.repository.findById(Id.create(request.id)))
+    return this.repository.findByIdFuture(Id.create(request.id))
       .flatMap(orderOptional => Result.fromOptional(orderOptional, new DomainError('Order not found')).toFuture())
       .flatMap(order =>
         order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus).toFuture()
@@ -52,8 +52,8 @@ export class OrdersService {
   }
 
   completeOrder(id: string) {
-    return Future.fromPromise(this.repository.findById(Id.create(id)))
-      .flatMap(orderOptional => Result.fromOptional(orderOptional, new DomainError('Order not found to complete')).toFuture())
+    return this.repository.findByIdFuture(Id.create(id))
+      .flatMap(order => Result.fromOptional(order, new DomainError('Order not found to complete')).toFuture())
       .flatMap(order => order.complete().toFuture()
         .flatMap(() => this.repository.save(order))
         .flatMap(() => Future.fromPromise(this.notifier.notify(`Order completed: ${order.toDto()._id}`))
@@ -61,17 +61,12 @@ export class OrdersService {
       );
   }
 
-  async deleteOrder(id: string) {
-    const order = await this.repository.findById(Id.create(id));
-
-    return order.match(async order => {
-      await this.repository.delete(order);
-
-      await this.notifier.notify(`Order deleted: ${order.toDto()._id}`);
-
-      return 'Order deleted';
-    }, () => {
-      throw new DomainError('Order not found');
-    });
+  deleteOrder(id: string) {
+    return this.repository.findByIdFuture(Id.create(id))
+      .flatMap(order => Result.fromOptional(order, new DomainError('Order not found')).toFuture())
+      .flatMap(order => Future.fromPromise(this.repository.delete(order))
+        .flatMap(() => Future.fromPromise(this.notifier.notify(`Order deleted: ${order.toDto()._id}`))
+          .map(() => 'Order deleted'))
+      );
   }
 }
