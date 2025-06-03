@@ -1,3 +1,5 @@
+import { Future } from "./common/future";
+
 export interface Notifier {
-  notify(message: string): Promise<void>;
+  notifyFuture(message: string): Future<void>;
 }

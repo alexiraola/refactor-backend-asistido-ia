@@ -32,7 +32,7 @@ export class OrdersService {
       request.shippingAddress
     ).toFuture()
       .flatMap(order => this.repository.save(order)
-        .flatMap(() => Future.fromPromise(this.notifier.notify(`New order created: ${order.toDto()._id}. Total: ${order.total()}`)))
+        .flatMap(() => this.notifier.notifyFuture(`New order created: ${order.toDto()._id}. Total: ${order.total()}`))
         .map(() => `Order created with total: ${order.total()}`));
   }
 
@@ -46,7 +46,7 @@ export class OrdersService {
       .flatMap(order =>
         order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus).toFuture()
           .flatMap(() => this.repository.save(order))
-          .flatMap(() => Future.fromPromise(this.notifier.notify(`Order updated. New status: ${order.toDto().status}`))
+          .flatMap(() => this.notifier.notifyFuture(`Order updated. New status: ${order.toDto().status}`)
             .map(() => `Order updated. New status: ${order.toDto().status}`))
       );
   }
@@ -56,7 +56,7 @@ export class OrdersService {
       .flatMap(order => Result.fromOptional(order, new DomainError('Order not found to complete')).toFuture())
       .flatMap(order => order.complete().toFuture()
         .flatMap(() => this.repository.save(order))
-        .flatMap(() => Future.fromPromise(this.notifier.notify(`Order completed: ${order.toDto()._id}`))
+        .flatMap(() => this.notifier.notifyFuture(`Order completed: ${order.toDto()._id}`)
           .map(() => `Order with id ${id} completed`))
       );
   }
@@ -65,7 +65,7 @@ export class OrdersService {
     return this.repository.findById(Id.create(id))
       .flatMap(order => Result.fromOptional(order, new DomainError('Order not found')).toFuture())
       .flatMap(order => this.repository.delete(order)
-        .flatMap(() => Future.fromPromise(this.notifier.notify(`Order deleted: ${order.toDto()._id}`))
+        .flatMap(() => this.notifier.notifyFuture(`Order deleted: ${order.toDto()._id}`)
           .map(() => 'Order deleted'))
       );
   }
