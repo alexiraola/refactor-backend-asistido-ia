@@ -17,7 +17,7 @@ export class MongooseOrdersRepository implements OrdersRepository {
     return Id.create(new mongoose.Types.ObjectId().toString());
   }
 
-  saveFuture(order: Order): Future<void> {
+  save(order: Order): Future<void> {
     const { _id, ...data } = order.toDto();
     return Future.fromPromise(OrderModel.findByIdAndUpdate(_id, data, { upsert: true })).map(() => { });
   }

@@ -31,7 +31,7 @@ export class OrdersService {
       Discount.fromCode(request.discountCode).get(),
       request.shippingAddress
     ).toFuture()
-      .flatMap(order => this.repository.saveFuture(order)
+      .flatMap(order => this.repository.save(order)
         .flatMap(() => Future.fromPromise(this.notifier.notify(`New order created: ${order.toDto()._id}. Total: ${order.total()}`)))
         .map(() => `Order created with total: ${order.total()}`));
   }
@@ -45,7 +45,7 @@ export class OrdersService {
       .flatMap(orderOptional => Result.fromOptional(orderOptional, new DomainError('Order not found')).toFuture())
       .flatMap(order =>
         order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus).toFuture()
-          .flatMap(() => this.repository.saveFuture(order))
+          .flatMap(() => this.repository.save(order))
           .flatMap(() => Future.fromPromise(this.notifier.notify(`Order updated. New status: ${order.toDto().status}`))
             .map(() => `Order updated. New status: ${order.toDto().status}`))
       );
@@ -55,7 +55,7 @@ export class OrdersService {
     return Future.fromPromise(this.repository.findById(Id.create(id)))
       .flatMap(orderOptional => Result.fromOptional(orderOptional, new DomainError('Order not found to complete')).toFuture())
       .flatMap(order => order.complete().toFuture()
-        .flatMap(() => this.repository.saveFuture(order))
+        .flatMap(() => this.repository.save(order))
         .flatMap(() => Future.fromPromise(this.notifier.notify(`Order completed: ${order.toDto()._id}`))
           .map(() => `Order with id ${id} completed`))
       );

@@ -63,7 +63,7 @@ describe("OrdersService", () => {
 
   it("should update an order from a request", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
-    repository.saveFuture(order)
+    repository.save(order)
       .flatMap(() => service.updateOrder({
         id: order.getId().toString(),
         discountCode: "INVALID",
@@ -82,7 +82,7 @@ describe("OrdersService", () => {
   it("should get all orders", () => new Promise<void>((done, error) => {
     const order = createValidOrder();
 
-    repository.saveFuture(order)
+    repository.save(order)
       .flatMap(() => service.getAllOrders())
       .run(orders => {
         expect(orders).toHaveLength(1);
@@ -93,7 +93,7 @@ describe("OrdersService", () => {
   it("should complete an order", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
 
-    repository.saveFuture(order)
+    repository.save(order)
       .flatMap(() => service.completeOrder(order.getId().toString()))
       .run(result => {
         expect(result).toBe("Order with id 0 completed");
@@ -107,7 +107,7 @@ describe("OrdersService", () => {
   it("should delete an order", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
 
-    repository.saveFuture(order)
+    repository.save(order)
       .flatMap(() => Future.fromPromise(service.deleteOrder(order.getId().toString())))
       .run(result => {
         expect(result).toBe("Order deleted");
@@ -142,7 +142,7 @@ describe("OrdersService", () => {
     const order = createValidOrder();
     const spy = vi.spyOn(notifier, "notify");
 
-    repository.saveFuture(order)
+    repository.save(order)
       .flatMap(() => service.completeOrder(order.getId().toString()))
       .run(() => {
         expect(spy).toHaveBeenCalledWith("Order completed: 0");

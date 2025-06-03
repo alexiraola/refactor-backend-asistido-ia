@@ -5,7 +5,7 @@ import { Id } from "../valueObjects/id";
 
 export interface OrdersRepository {
   newId(): Id;
-  saveFuture(order: Order): Future<void>;
+  save(order: Order): Future<void>;
   findAll(): Future<Order[]>;
   findById(id: Id): Promise<Optional<Order>>;
   delete(order: Order): Promise<void>;
@@ -18,7 +18,7 @@ export class InMemoryOrdersRepository implements OrdersRepository {
     return Id.create(this.orders.length.toString());
   }
 
-  saveFuture(order: Order): Future<void> {
+  save(order: Order): Future<void> {
     return Future.fromPromise(new Promise<void>((resolve, _reject) => {
       const index = this.orders.findIndex(o => o.equals(order));
       if (index === -1) {

@@ -24,7 +24,7 @@ describe("The order Mongo repository", () => {
   it("save a given new valid order", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder("DISCOUNT20");
 
-    orderRepository.saveFuture(order).run(async () => {
+    orderRepository.save(order).run(async () => {
       const savedOrder = await orderRepository.findById(Id.create("1"));
       expect(savedOrder).toEqual(Optional.some(order));
       done();
@@ -34,7 +34,7 @@ describe("The order Mongo repository", () => {
   it("save a given new order with an empty discount", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder("INVALID");
 
-    orderRepository.saveFuture(order).run(async () => {
+    orderRepository.save(order).run(async () => {
       const savedOrder = await orderRepository.findById(Id.create("1"));
       expect(savedOrder).toEqual(Optional.some(order));
       done();
@@ -43,9 +43,9 @@ describe("The order Mongo repository", () => {
 
   it("updates a given order", () => new Promise<void>((done, error) => {
     const order = createValidOrder("DISCOUNT20");
-    orderRepository.saveFuture(order).flatMap(() => {
+    orderRepository.save(order).flatMap(() => {
       order.update("DISCOUNT30", "Shipping address 2");
-      return orderRepository.saveFuture(order);
+      return orderRepository.save(order);
     }).run(async () => {
       const savedOrder = await orderRepository.findById(Id.create("1"));
       expect(savedOrder).toEqual(Optional.some(order));
@@ -55,7 +55,7 @@ describe("The order Mongo repository", () => {
 
   it("deletes a given order", () => new Promise<void>((done, error) => {
     const order = createValidOrder("DISCOUNT20");
-    orderRepository.saveFuture(order).run(async () => {
+    orderRepository.save(order).run(async () => {
       await orderRepository.delete(order);
       const savedOrder = await orderRepository.findById(Id.create("1"));
       expect(savedOrder).toEqual(Optional.none());
