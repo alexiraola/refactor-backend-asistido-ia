@@ -6,7 +6,6 @@ import { Discount } from "../../domain/valueObjects/discount";
 import { MongooseOrdersRepository } from "../../infrastructure/mongoose.orders.repository";
 import mongoose from "mongoose";
 import { Optional } from "../../domain/common/optional";
-import { Future } from "../../domain/common/future";
 
 describe("The order Mongo repository", () => {
   let orderRepository: MongooseOrdersRepository;
