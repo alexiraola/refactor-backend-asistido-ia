@@ -118,7 +118,7 @@ describe("OrdersService", () => {
   }));
 
   it("should notify when an order is created", () => new Promise<void>((done, error) => {
-    const spy = vi.spyOn(notifier, "notifyFuture");
+    const spy = vi.spyOn(notifier, "notify");
 
     service.createOrder({
       items: [
@@ -139,7 +139,7 @@ describe("OrdersService", () => {
 
   it("should notify when an order is completed", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
-    const spy = vi.spyOn(notifier, "notifyFuture");
+    const spy = vi.spyOn(notifier, "notify");
 
     repository.save(order)
       .flatMap(() => service.completeOrder(order.getId().toString()))

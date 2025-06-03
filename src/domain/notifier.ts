@@ -1,5 +1,5 @@
 import { Future } from "./common/future";
 
 export interface Notifier {
-  notifyFuture(message: string): Future<void>;
+  notify(message: string): Future<void>;
 }

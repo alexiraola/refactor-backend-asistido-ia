@@ -6,7 +6,7 @@ import { Logger, NoopLogger } from "../infrastructure/logger";
 import { MongooseOrdersRepository } from "../infrastructure/mongoose.orders.repository";
 
 export class FakeNotifier implements Notifier {
-  notifyFuture(_message: string): Future<void> {
+  notify(_message: string): Future<void> {
     return Future.of(undefined);
   }
 }

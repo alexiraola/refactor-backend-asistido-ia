@@ -7,7 +7,7 @@ export class SendGridNotifier implements Notifier {
     sgMail.setApiKey(apiKey);
   }
 
-  notifyFuture(message: string): Future<void> {
+  notify(message: string): Future<void> {
     return Future.fromPromise(new Promise<void>((resolve, reject) => {
       const msg = {
         to: 'alex.iraola@gmail.com', // Change to your recipient
