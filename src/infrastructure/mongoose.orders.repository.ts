@@ -52,7 +52,7 @@ export class MongooseOrdersRepository implements OrdersRepository {
     }));
   }
 
-  deleteFuture(order: Order): Future<void> {
+  delete(order: Order): Future<void> {
     return Future.fromPromise(new Promise<void>(async (resolve, _reject) => {
       await OrderModel.findByIdAndDelete(order.toDto()._id);
       resolve();
