@@ -1,3 +1,4 @@
+import { Future } from "./future";
 import { Optional } from "./optional";
 
 type Ok<T> = {
@@ -79,6 +80,10 @@ export class Result<T, E> {
 
   match<R>(okFn: (value: T) => R, errFn: (error: E) => R): R {
     return this.result.ok ? okFn(this.result.value) : errFn(this.result.error);
+  }
+
+  toFuture(): Future<T, E> {
+    return Future.fromResult(this);
   }
 }
 

@@ -1,3 +1,4 @@
+import { Future } from "../domain/common/future";
 import { Result } from "../domain/common/result";
 import { Order, OrderStatus } from "../domain/entities/order";
 import { DomainError } from "../domain/error";
@@ -23,51 +24,41 @@ export type UpdateOrderRequest = {
 export class OrdersService {
   constructor(private readonly repository: OrdersRepository, private readonly notifier: Notifier) { }
 
-  async createOrder(request: CreateOrderRequest) {
-    const order = Order.create(
+  createOrder(request: CreateOrderRequest) {
+    return Order.create(
       this.repository.newId(),
       request.items.map((item: any) => OrderItem.create(item.productId, item.quantity || 0, item.price || 0).get()),
       Discount.fromCode(request.discountCode).get(),
       request.shippingAddress
-    ).get();
-    await this.repository.save(order);
-    await this.notifier.notify(`New order created: ${order.toDto()._id}. Total: ${order.total()}`);
-    return `Order created with total: ${order.total()}`;
+    ).toFuture()
+      .flatMap(order => this.repository.saveFuture(order)
+        .flatMap(() => Future.fromPromise(this.notifier.notify(`New order created: ${order.toDto()._id}. Total: ${order.total()}`)))
+        .map(() => `Order created with total: ${order.total()}`));
   }
 
   getAllOrders() {
     return this.repository.findAll().map(orders => orders.map(order => order.toDto()));
   }
 
-  async updateOrder(request: UpdateOrderRequest) {
-    const order = await this.repository.findById(Id.create(request.id));
-
-    return Result.fromOptional(order, new DomainError('Order not found')).map(order => {
-      return order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus).match(async () => {
-        await this.repository.save(order);
-
-        await this.notifier.notify(`Order updated. New status: ${order.toDto().status}`);
-
-        return `Order updated. New status: ${order.toDto().status}`;
-      }, (error) => {
-        throw error;
-      });
-    }).get();
+  updateOrder(request: UpdateOrderRequest) {
+    return Future.fromPromise(this.repository.findById(Id.create(request.id)))
+      .flatMap(orderOptional => Result.fromOptional(orderOptional, new DomainError('Order not found')).toFuture())
+      .flatMap(order =>
+        order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus).toFuture()
+          .flatMap(() => this.repository.saveFuture(order))
+          .flatMap(() => Future.fromPromise(this.notifier.notify(`Order updated. New status: ${order.toDto().status}`))
+            .map(() => `Order updated. New status: ${order.toDto().status}`))
+      );
   }
 
-  async completeOrder(id: string) {
-    const order = await this.repository.findById(Id.create(id));
-
-    return order.match(async order => {
-      order.complete().get();
-      await this.repository.save(order);
-
-      await this.notifier.notify(`Order completed: ${order.toDto()._id}`);
-
-      return `Order with id ${id} completed`;
-    }, () => {
-      throw new DomainError('Order not found to complete');
-    });
+  completeOrder(id: string) {
+    return Future.fromPromise(this.repository.findById(Id.create(id)))
+      .flatMap(orderOptional => Result.fromOptional(orderOptional, new DomainError('Order not found to complete')).toFuture())
+      .flatMap(order => order.complete().toFuture()
+        .flatMap(() => this.repository.saveFuture(order))
+        .flatMap(() => Future.fromPromise(this.notifier.notify(`Order completed: ${order.toDto()._id}`))
+          .map(() => `Order with id ${id} completed`))
+      );
   }
 
   async deleteOrder(id: string) {

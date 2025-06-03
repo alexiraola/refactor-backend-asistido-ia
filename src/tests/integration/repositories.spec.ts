@@ -21,44 +21,47 @@ describe("The order Mongo repository", () => {
     await mongoose.connection.dropDatabase();
   });
 
-  it("save a given new valid order", async () => {
+  it("save a given new valid order", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder("DISCOUNT20");
 
-    await orderRepository.save(order);
+    orderRepository.saveFuture(order).run(async () => {
+      const savedOrder = await orderRepository.findById(Id.create("1"));
+      expect(savedOrder).toEqual(Optional.some(order));
+      done();
+    }, error);
+  }));
 
-    const savedOrder = await orderRepository.findById(Id.create("1"));
-    expect(savedOrder).toEqual(Optional.some(order));
-  });
-
-  it("save a given new order with an empty discount", async () => {
+  it("save a given new order with an empty discount", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder("INVALID");
 
-    await orderRepository.save(order);
+    orderRepository.saveFuture(order).run(async () => {
+      const savedOrder = await orderRepository.findById(Id.create("1"));
+      expect(savedOrder).toEqual(Optional.some(order));
+      done();
+    }, error);
+  }));
 
-    const savedOrder = await orderRepository.findById(Id.create("1"));
-    expect(savedOrder).toEqual(Optional.some(order));
-  });
-
-  it("updates a given order", async () => {
+  it("updates a given order", () => new Promise<void>((done, error) => {
     const order = createValidOrder("DISCOUNT20");
-    await orderRepository.save(order);
+    orderRepository.saveFuture(order).flatMap(() => {
+      order.update("DISCOUNT30", "Shipping address 2");
+      return orderRepository.saveFuture(order);
+    }).run(async () => {
+      const savedOrder = await orderRepository.findById(Id.create("1"));
+      expect(savedOrder).toEqual(Optional.some(order));
+      done();
+    }, error);
+  }));
 
-    order.update("DISCOUNT30", "Shipping address 2");
-    await orderRepository.save(order);
-
-    const savedOrder = await orderRepository.findById(Id.create("1"));
-    expect(savedOrder).toEqual(Optional.some(order));
-  });
-
-  it("deletes a given order", async () => {
+  it("deletes a given order", () => new Promise<void>((done, error) => {
     const order = createValidOrder("DISCOUNT20");
-    await orderRepository.save(order);
-
-    await orderRepository.delete(order);
-
-    const savedOrder = await orderRepository.findById(Id.create("1"));
-    expect(savedOrder).toEqual(Optional.none());
-  });
+    orderRepository.saveFuture(order).run(async () => {
+      await orderRepository.delete(order);
+      const savedOrder = await orderRepository.findById(Id.create("1"));
+      expect(savedOrder).toEqual(Optional.none());
+      done();
+    }, error);
+  }));
 });
 
 function createValidOrder(discountCode: string): Order {

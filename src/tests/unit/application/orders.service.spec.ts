@@ -6,6 +6,7 @@ import { Discount } from "../../../domain/valueObjects/discount";
 import { Id } from "../../../domain/valueObjects/id";
 import { OrderItem } from "../../../domain/valueObjects/orderItem";
 import { FakeNotifier } from "../../factory";
+import { Future } from "../../../domain/common/future";
 
 describe("OrdersService", () => {
   let repository: InMemoryOrdersRepository;
@@ -19,7 +20,7 @@ describe("OrdersService", () => {
   });
 
   it("should create an order from a request", () => new Promise<void>(async (done, error) => {
-    const result = await service.createOrder({
+    const result = service.createOrder({
       items: [
         {
           productId: "1",
@@ -31,7 +32,7 @@ describe("OrdersService", () => {
       shippingAddress: "Nowhere Avenue",
     });
 
-    expect(result).toBe("Order created with total: 10");
+    result.run(message => expect(message).toBe("Order created with total: 10"), error);
 
     repository.findAll().run(orders => {
       expect(orders).toHaveLength(1);
@@ -40,7 +41,7 @@ describe("OrdersService", () => {
   }));
 
   it("should create an order from a request with discount", () => new Promise<void>(async (done, error) => {
-    const result = await service.createOrder({
+    const result = service.createOrder({
       items: [
         {
           productId: "1",
@@ -52,7 +53,7 @@ describe("OrdersService", () => {
       shippingAddress: "Nowhere Avenue",
     });
 
-    expect(result).toBe("Order created with total: 8");
+    result.run(message => expect(message).toBe("Order created with total: 8"), error);
 
     repository.findAll().run(orders => {
       expect(orders).toHaveLength(1);
@@ -62,63 +63,65 @@ describe("OrdersService", () => {
 
   it("should update an order from a request", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
-    await repository.save(order);
+    repository.saveFuture(order)
+      .flatMap(() => service.updateOrder({
+        id: order.getId().toString(),
+        discountCode: "INVALID",
+        shippingAddress: "Nowhere Avenue",
+        status: "CREATED",
+      })).run(result => {
+        expect(result).toBe("Order updated. New status: CREATED");
 
-    const result = await service.updateOrder({
-      id: order.getId().toString(),
-      discountCode: "INVALID",
-      shippingAddress: "Nowhere Avenue",
-      status: "CREATED",
-    });
-
-    expect(result).toBe("Order updated. New status: CREATED");
-
-    repository.findAll().run(orders => {
-      expect(orders).toHaveLength(1);
-      done();
-    }, error);
+        repository.findAll().run(orders => {
+          expect(orders).toHaveLength(1);
+          done();
+        }, error);
+      }, error);
   }));
 
-  it("should get all orders", () => new Promise<void>(async (done, error) => {
+  it("should get all orders", () => new Promise<void>((done, error) => {
     const order = createValidOrder();
-    await repository.save(order);
 
-    service.getAllOrders().run(orders => {
-      expect(orders).toHaveLength(1);
-      done();
-    }, error);
+    repository.saveFuture(order)
+      .flatMap(() => service.getAllOrders())
+      .run(orders => {
+        expect(orders).toHaveLength(1);
+        done();
+      }, error);
   }));
 
   it("should complete an order", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
-    await repository.save(order);
 
-    const result = await service.completeOrder(order.getId().toString());
-    expect(result).toBe("Order with id 0 completed");
-
-    repository.findAll().run(orders => {
-      expect(orders).toHaveLength(1);
-      done();
-    }, error);
+    repository.saveFuture(order)
+      .flatMap(() => service.completeOrder(order.getId().toString()))
+      .run(result => {
+        expect(result).toBe("Order with id 0 completed");
+        repository.findAll().run(orders => {
+          expect(orders).toHaveLength(1);
+          done();
+        }, error);
+      }, error);
   }));
 
   it("should delete an order", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
-    await repository.save(order);
 
-    const result = await service.deleteOrder(order.getId().toString());
-    expect(result).toBe("Order deleted");
-
-    repository.findAll().run(orders => {
-      expect(orders).toHaveLength(0);
-      done();
-    }, error);
+    repository.saveFuture(order)
+      .flatMap(() => Future.fromPromise(service.deleteOrder(order.getId().toString())))
+      .run(result => {
+        expect(result).toBe("Order deleted");
+        repository.findAll().run(orders => {
+          expect(orders).toHaveLength(0);
+          done();
+        }, error);
+      }, error);
   }));
 
-  it("should notify when an order is created", async () => {
+  it("should notify when an order is created", () => new Promise<void>((done, error) => {
     const spy = vi.spyOn(notifier, "notify");
 
-    await service.createOrder({
+    service.createOrder({
       items: [
         {
           productId: "1",
@@ -128,23 +131,25 @@ describe("OrdersService", () => {
       ],
       discountCode: "DISCOUNT20",
       shippingAddress: "Nowhere Avenue",
-    });
+    }).run(() => {
+      expect(spy).toHaveBeenCalledWith("New order created: 0. Total: 8");
+      expect(spy).toHaveBeenCalledTimes(1);
+      done();
+    }, error);
+  }));
 
-    expect(spy).toHaveBeenCalledWith("New order created: 0. Total: 8");
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it("should notify when an order is completed", async () => {
+  it("should notify when an order is completed", () => new Promise<void>(async (done, error) => {
     const order = createValidOrder();
-    await repository.save(order);
-
     const spy = vi.spyOn(notifier, "notify");
 
-    await service.completeOrder(order.getId().toString());
-
-    expect(spy).toHaveBeenCalledWith("Order completed: 0");
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
+    repository.saveFuture(order)
+      .flatMap(() => service.completeOrder(order.getId().toString()))
+      .run(() => {
+        expect(spy).toHaveBeenCalledWith("Order completed: 0");
+        expect(spy).toHaveBeenCalledTimes(1);
+        done();
+      }, error);
+  }));
 });
 
 function createValidOrder() {

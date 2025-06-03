@@ -6,7 +6,6 @@ import { OrderItem } from "../domain/valueObjects/orderItem";
 import mongoose from 'mongoose';
 import { OrderModel } from "./mongoose/order.model";
 import { Optional } from "../domain/common/optional";
-import { Result } from "../domain/common/result";
 import { Future } from "../domain/common/future";
 
 function isValidStatus(status: string): status is OrderStatus {
@@ -18,9 +17,9 @@ export class MongooseOrdersRepository implements OrdersRepository {
     return Id.create(new mongoose.Types.ObjectId().toString());
   }
 
-  async save(order: Order): Promise<void> {
+  saveFuture(order: Order): Future<void> {
     const { _id, ...data } = order.toDto();
-    await OrderModel.findByIdAndUpdate(_id, data, { upsert: true });
+    return Future.fromPromise(OrderModel.findByIdAndUpdate(_id, data, { upsert: true })).map(() => { });
   }
 
   findAll(): Future<Order[]> {

@@ -10,15 +10,16 @@ export class OrdersController {
     this.logger.log("POST /orders");
     const { items, discountCode, shippingAddress } = req.body;
 
-    try {
-      res.send((await this.useCase.createOrder({ items, discountCode, shippingAddress })));
-    } catch (error: any) {
-      if (error instanceof DomainError) {
-        res.status(400).send(error.message);
-      } else {
-        res.status(500).send("Unexpected error");
+    this.useCase.createOrder({ items, discountCode, shippingAddress }).run(
+      message => res.send(message),
+      error => {
+        if (error instanceof DomainError) {
+          res.status(400).send(error.message);
+        } else {
+          res.status(500).send("Unexpected error");
+        }
       }
-    }
+    );
   };
 
   getAllOrders = (_req: Request, res: Response) => {
@@ -36,35 +37,37 @@ export class OrdersController {
     );
   };
 
-  updateOrder = async (req: Request, res: Response) => {
+  updateOrder = (req: Request, res: Response) => {
     this.logger.log("PUT /orders/:id");
     const { id } = req.params;
     const { status, shippingAddress, discountCode } = req.body;
 
-    try {
-      res.send((await this.useCase.updateOrder({ id, discountCode, shippingAddress, status })));
-    } catch (error: any) {
-      if (error instanceof DomainError) {
-        res.status(400).send(error.message);
-      } else {
-        res.status(500).send("Unexpected error");
+    this.useCase.updateOrder({ id, status, shippingAddress, discountCode }).run(
+      message => res.send(message),
+      error => {
+        if (error instanceof DomainError) {
+          res.status(400).send(error.message);
+        } else {
+          res.status(500).send("Unexpected error");
+        }
       }
-    }
+    );
   };
 
-  completeOrder = async (req: Request, res: Response) => {
+  completeOrder = (req: Request, res: Response) => {
     this.logger.log("POST /orders/:id/complete");
     const { id } = req.params;
 
-    try {
-      res.send((await this.useCase.completeOrder(id)));
-    } catch (error: any) {
-      if (error instanceof DomainError) {
-        res.status(400).send(error.message);
-      } else {
-        res.status(500).send("Unexpected error");
+    this.useCase.completeOrder(id).run(
+      message => res.send(message),
+      error => {
+        if (error instanceof DomainError) {
+          res.status(400).send(error.message);
+        } else {
+          res.status(500).send("Unexpected error");
+        }
       }
-    }
+    )
   };
 
   deleteOrder = async (req: Request, res: Response) => {
