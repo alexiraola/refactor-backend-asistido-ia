@@ -26,7 +26,7 @@ describe("The order Mongo repository", () => {
     const order = createValidOrder("DISCOUNT20");
 
     orderRepository.save(order)
-      .flatMap(() => orderRepository.findByIdFuture(Id.create("1")))
+      .flatMap(() => orderRepository.findById(Id.create("1")))
       .run(async savedOrder => {
         expect(savedOrder).toEqual(Optional.some(order));
         done();
@@ -37,7 +37,7 @@ describe("The order Mongo repository", () => {
     const order = createValidOrder("INVALID");
 
     orderRepository.save(order)
-      .flatMap(() => orderRepository.findByIdFuture(Id.create("1")))
+      .flatMap(() => orderRepository.findById(Id.create("1")))
       .run(async savedOrder => {
         expect(savedOrder).toEqual(Optional.some(order));
         done();
@@ -49,7 +49,7 @@ describe("The order Mongo repository", () => {
     orderRepository.save(order)
       .flatMap(() => order.update("DISCOUNT30", "Shipping address 2").toFuture())
       .flatMap(() => orderRepository.save(order))
-      .flatMap(() => orderRepository.findByIdFuture(Id.create("1")))
+      .flatMap(() => orderRepository.findById(Id.create("1")))
       .run((savedOrder) => {
         expect(savedOrder).toEqual(Optional.some(order));
         done();
@@ -60,7 +60,7 @@ describe("The order Mongo repository", () => {
     const order = createValidOrder("DISCOUNT20");
     orderRepository.save(order)
       .flatMap(() => Future.fromPromise(orderRepository.delete(order)))
-      .flatMap(() => orderRepository.findByIdFuture(Id.create("1")))
+      .flatMap(() => orderRepository.findById(Id.create("1")))
       .run(async savedOrder => {
         expect(savedOrder).toEqual(Optional.none());
         done();

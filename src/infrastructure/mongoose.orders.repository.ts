@@ -34,7 +34,7 @@ export class MongooseOrdersRepository implements OrdersRepository {
     }));
   }
 
-  findByIdFuture(id: Id): Future<Optional<Order>> {
+  findById(id: Id): Future<Optional<Order>> {
     return Future.fromPromise(new Promise<Optional<Order>>(async (resolve, _reject) => {
       const order = await OrderModel.findById(id.toString());
 

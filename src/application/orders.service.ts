@@ -41,7 +41,7 @@ export class OrdersService {
   }
 
   updateOrder(request: UpdateOrderRequest) {
-    return this.repository.findByIdFuture(Id.create(request.id))
+    return this.repository.findById(Id.create(request.id))
       .flatMap(orderOptional => Result.fromOptional(orderOptional, new DomainError('Order not found')).toFuture())
       .flatMap(order =>
         order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus).toFuture()
@@ -52,7 +52,7 @@ export class OrdersService {
   }
 
   completeOrder(id: string) {
-    return this.repository.findByIdFuture(Id.create(id))
+    return this.repository.findById(Id.create(id))
       .flatMap(order => Result.fromOptional(order, new DomainError('Order not found to complete')).toFuture())
       .flatMap(order => order.complete().toFuture()
         .flatMap(() => this.repository.save(order))
@@ -62,7 +62,7 @@ export class OrdersService {
   }
 
   deleteOrder(id: string) {
-    return this.repository.findByIdFuture(Id.create(id))
+    return this.repository.findById(Id.create(id))
       .flatMap(order => Result.fromOptional(order, new DomainError('Order not found')).toFuture())
       .flatMap(order => Future.fromPromise(this.repository.delete(order))
         .flatMap(() => Future.fromPromise(this.notifier.notify(`Order deleted: ${order.toDto()._id}`))
