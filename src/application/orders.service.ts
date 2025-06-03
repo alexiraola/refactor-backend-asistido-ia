@@ -64,7 +64,7 @@ export class OrdersService {
   deleteOrder(id: string) {
     return this.repository.findById(Id.create(id))
       .flatMap(order => Result.fromOptional(order, new DomainError('Order not found')).toFuture())
-      .flatMap(order => Future.fromPromise(this.repository.delete(order))
+      .flatMap(order => this.repository.deleteFuture(order)
         .flatMap(() => Future.fromPromise(this.notifier.notify(`Order deleted: ${order.toDto()._id}`))
           .map(() => 'Order deleted'))
       );

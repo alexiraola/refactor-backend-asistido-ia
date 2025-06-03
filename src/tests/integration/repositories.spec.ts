@@ -59,7 +59,7 @@ describe("The order Mongo repository", () => {
   it("deletes a given order", () => new Promise<void>((done, error) => {
     const order = createValidOrder("DISCOUNT20");
     orderRepository.save(order)
-      .flatMap(() => Future.fromPromise(orderRepository.delete(order)))
+      .flatMap(() => orderRepository.deleteFuture(order))
       .flatMap(() => orderRepository.findById(Id.create("1")))
       .run(async savedOrder => {
         expect(savedOrder).toEqual(Optional.none());

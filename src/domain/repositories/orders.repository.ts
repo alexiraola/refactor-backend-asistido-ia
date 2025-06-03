@@ -8,7 +8,7 @@ export interface OrdersRepository {
   save(order: Order): Future<void>;
   findAll(): Future<Order[]>;
   findById(id: Id): Future<Optional<Order>>;
-  delete(order: Order): Promise<void>;
+  deleteFuture(order: Order): Future<void>;
 }
 
 export class InMemoryOrdersRepository implements OrdersRepository {
@@ -38,7 +38,10 @@ export class InMemoryOrdersRepository implements OrdersRepository {
     return Future.of(Optional.ofNullable(this.orders.find(order => order.getId().equals(id)) || null));
   }
 
-  async delete(order: Order): Promise<void> {
-    this.orders = this.orders.filter(o => !o.equals(order));
+  deleteFuture(order: Order): Future<void> {
+    return Future.fromPromise(new Promise<void>((resolve, _reject) => {
+      this.orders = this.orders.filter(o => !o.equals(order));
+      resolve();
+    }));
   }
 }
