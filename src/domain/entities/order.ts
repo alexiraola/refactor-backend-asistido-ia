@@ -27,7 +27,7 @@ export class Order {
 
   update(discountCode?: string, shippingAddress?: string, status?: OrderStatus): Result<void, DomainError> {
     if (discountCode) {
-      this.discount = Discount.fromCode(discountCode).get();
+      this.discount = Discount.fromCode(discountCode);
     }
     if (shippingAddress) {
       this.shippingAddress = shippingAddress;

@@ -158,7 +158,7 @@ function createValidOrder() {
       OrderItem.create(
         "1", 1, 10
       ).get()],
-    Discount.fromCode("DISCOUNT20").get(),
+    Discount.fromCode("DISCOUNT20"),
     "Nowhere Avenue",
   ).get();
   return order;

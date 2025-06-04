@@ -28,7 +28,7 @@ export class OrdersService {
     return Order.create(
       this.repository.newId(),
       request.items.map((item: any) => OrderItem.create(item.productId, item.quantity || 0, item.price || 0).get()),
-      Discount.fromCode(request.discountCode).get(),
+      Discount.fromCode(request.discountCode),
       request.shippingAddress
     ).toFuture()
       .flatMap(order => this.repository.save(order)

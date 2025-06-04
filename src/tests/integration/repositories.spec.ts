@@ -72,5 +72,5 @@ function createValidOrder(discountCode: string): Order {
     OrderItem.create("1", 2, 3).get(),
   ];
 
-  return Order.create(Id.create("1"), items, Discount.fromCode(discountCode).get(), "Shipping address").get();
+  return Order.create(Id.create("1"), items, Discount.fromCode(discountCode), "Shipping address").get();
 }
