@@ -46,8 +46,8 @@ export class OrdersService {
       .flatMap(order =>
         order.update(request.discountCode, request.shippingAddress, request.status as OrderStatus).toFuture()
           .flatMap(() => this.repository.save(order))
-          .flatMap(() => this.notifier.notify(`Order updated. New status: ${order.toDto().status}`)
-            .map(() => `Order updated. New status: ${order.toDto().status}`))
+          .flatMap(() => this.notifier.notify(`Order updated. New status: ${order.toDto().status}`))
+          .map(() => `Order updated. New status: ${order.toDto().status}`)
       );
   }
 
@@ -56,17 +56,17 @@ export class OrdersService {
       .flatMap(order => Result.fromOptional(order, new DomainError('Order not found to complete')).toFuture())
       .flatMap(order => order.complete().toFuture()
         .flatMap(() => this.repository.save(order))
-        .flatMap(() => this.notifier.notify(`Order completed: ${order.toDto()._id}`)
-          .map(() => `Order with id ${id} completed`))
-      );
+        .flatMap(() => this.notifier.notify(`Order completed: ${order.toDto()._id}`))
+      )
+      .map(() => `Order with id ${id} completed`);
   }
 
   deleteOrder(id: string) {
     return this.repository.findById(Id.create(id))
       .flatMap(order => Result.fromOptional(order, new DomainError('Order not found')).toFuture())
       .flatMap(order => this.repository.delete(order)
-        .flatMap(() => this.notifier.notify(`Order deleted: ${order.toDto()._id}`)
-          .map(() => 'Order deleted'))
-      );
+        .flatMap(() => this.notifier.notify(`Order deleted: ${order.toDto()._id}`))
+      )
+      .map(() => 'Order deleted');
   }
 }
